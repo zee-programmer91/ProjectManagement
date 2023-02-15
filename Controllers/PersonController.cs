@@ -19,5 +19,11 @@ namespace ProjectManagement.Controllers
         {
             return new ObjectResult(QueryPerson.GetPersonByID(id));
         }
+
+        [HttpPost("UpdatePerson", Name = "UpdatePerson")]
+        public IActionResult UpdatePerson(int id, string name)
+        {
+            return new ObjectResult(QueryPerson.UpdatePersonName(id, name));
+        }
     }
 }

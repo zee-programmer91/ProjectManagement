@@ -7,12 +7,11 @@ namespace ProjectManagement.Database
     public class Database
     {
         private NpgsqlConnection connection {get;}
-        private string ConnectionString = setConfiguration();
+        private readonly string ConnectionString = SetConfiguration();
 
         public Database()
         {
             connection = new NpgsqlConnection(ConnectionString);
-            setConfiguration();
         }
 
         public NpgsqlConnection GetConnection()
@@ -25,23 +24,24 @@ namespace ProjectManagement.Database
             connection.Open();
         }
 
-        public void Dispose()
+        public void DisposeConnection()
         {
             connection.Close();
         }
 
-        public static string setConfiguration()
+        public static string SetConfiguration()
         {
-            string text = File.ReadAllText(@"D:\BBD_Training\C#\LiveNiceApp\databaseConfig.json");
-            Console.WriteLine("text: "+ text);
-            var configuration = JsonSerializer.Deserialize<Configuration>(text);
-            string connectionString = $"Host={configuration.Host};Username={configuration.Username};Password={configuration.Password};Database={configuration.DatabaseName};";
+            try
+            {
+                string text = File.ReadAllText(@"D:\BBD_Training\C#\LiveNiceApp\databaseConfig.json");
+                var configuration = JsonSerializer.Deserialize<Configuration>(text);
+                string connectionString = $"Host={configuration.Host};Username={configuration.Username};Password={configuration.Password};Database={configuration.DatabaseName};";
 
-            Console.WriteLine($"Host: {configuration.Host}");
-            Console.WriteLine($"Username: {configuration.Username}");
-            Console.WriteLine($"Password: {configuration.Password}");
-
-            return connectionString;
+                return connectionString;
+            } catch(Exception)
+            {
+                return "";
+            }
         }
     }
 }

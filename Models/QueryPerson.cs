@@ -4,12 +4,13 @@ using ProjectManagement.Database;
 
 using System.Collections.Generic;
 using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LiveNiceApp
 {
     internal class QueryPerson
     {
-        private static Database database = new Database();
+        private static readonly Database database = new Database();
 
         public static Person[] GetPersonByID(int id)
         {
@@ -25,12 +26,12 @@ namespace LiveNiceApp
                     while (reader.Read())
                     {
                         Person person = ReadPerson(reader);
-                        database.Dispose();
+                        database.DisposeConnection();
                         persons.Add(person);
                         return persons.ToArray();
                     }
             }
-            database.Dispose();
+            database.DisposeConnection();
             return persons.ToArray();
         }
 
@@ -49,73 +50,131 @@ namespace LiveNiceApp
                         persons.Add(person);
                     }
             }
-            database.Dispose();
+            database.DisposeConnection();
+            return persons.ToArray();
+        }
+
+        public static void AddPerson(Person person)
+        {
+            database.OpenConnection();
+
+            string commandText = $"INSERT INTO PERSON (person_name, person_surname, identity_code) VALUES(@person_name,@person_surname,@identity_code);";
+
+            using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+            cmd.Parameters.AddWithValue("person_name", person.personName);
+            cmd.Parameters.AddWithValue("person_surname", person.personSurname);
+            cmd.Parameters.AddWithValue("identity_code", person.identityCode);
+            cmd.ExecuteNonQuery();
+
+            Console.WriteLine($"SAVED {person.personName} INTO PERSON TABLE");
+            database.DisposeConnection();
+        }
+
+        public static void DeletePerson(int person_id)
+        {
+            database.OpenConnection();
+
+            string commandText = $"DELETE FROM PERSON WHERE ID = @person_id)";
+
+            using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+            cmd.Parameters.AddWithValue("person_id", person_id);
+
+            cmd.ExecuteNonQuery();
+
+            Console.WriteLine($"DELETED PERSON WITH THE ID OF {person_id} FROM PERSON TABLE");
+            database.DisposeConnection();
+        }
+
+        public static Person[] UpdatePersonName(int person_id, string person_name)
+        {
+            int result = 0;
+            List<Person> persons = new List<Person>();
+
+            try
+            {
+                database.OpenConnection();
+
+                string commandText = $"UPDATE PERSON SET person_name = @person_name WHERE person_id = @person_id;";
+
+                using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", person_id);
+                cmd.Parameters.AddWithValue("person_name", person_name);
+
+                result = cmd.ExecuteNonQuery();
+                Console.WriteLine($"UPDATED PERSON WITH ID {person_name} IN PERSON TABLE");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("ERROR: "+e.Message);
+                Console.WriteLine($"ERROR - Person with ID {person_name} does not exist");
+            }
+            database.DisposeConnection();
             return persons.ToArray();
         }
 
         private static Person ReadPerson(NpgsqlDataReader reader)
         {
-            int id = (int)(reader["person_id"] as int?);
-            string? name = reader["person_name"] as string;
-            string? surname = reader["person_surname"] as string;
-            string? identity = reader["identity_code"] as string;
 
-            Person person = new Person()
+            var tempId = reader["person_id"];
+            int id = 0;
+
+            switch (tempId != null)
             {
-                person_id = id,
-                person_name = name,
-                person_surname = surname,
-                identity_code = identity,
+                case true:
+                    id = (int)tempId;
+                    break;
+                case false:
+                    return new Person();
+            }
+
+            var tempName = reader["person_name"] as string;
+            string name;
+
+            switch (tempName != null)
+            {
+                case true:
+                    name = tempName;
+                    break;
+                case false:
+                    name = "";
+                    break;
+            }
+
+            var tempSurname = reader["person_surname"] as string;
+            string surname;
+
+            switch (tempSurname != null)
+            {
+                case true:
+                    surname = tempSurname;
+                    break;
+                case false:
+                    surname = "";
+                    break;
+            }
+
+            var tempIdentity = reader["identity_code"] as string;
+            string identity;
+
+            switch (tempIdentity != null)
+            {
+                case true:
+                    identity = tempIdentity;
+                    break;
+                case false:
+                    identity = "";
+                    break;
+            }
+
+            Person person = new()
+            {
+                personId = id,
+                personName = name,
+                personSurname = surname,
+                identityCode = identity,
             };
+
             return person;
-        }
-
-        public static void AddPerson(Person person, NpgsqlConnection connection)
-        {
-            string commandText = $"INSERT INTO PERSON (person_name, person_surname, identity_code) VALUES(@person_name,@person_surname,@identity_code);";
-            using (var cmd = new NpgsqlCommand(commandText, connection))
-            {
-                cmd.Parameters.AddWithValue("person_name", person.person_name);
-                cmd.Parameters.AddWithValue("person_surname", person.person_surname);
-                cmd.Parameters.AddWithValue("identity_code", person.identity_code);
-
-                cmd.ExecuteNonQuery();
-                Console.WriteLine($"SAVED {person.person_name} INTO PERSON TABLE");
-            }
-        }
-
-        public static void DeletePerson(Person person, NpgsqlConnection connection)
-        {
-            string commandText = $"DELETE FROM PERSON WHERE ID=@person_id)";
-            using (var cmd = new NpgsqlCommand(commandText, connection))
-            {
-                cmd.Parameters.AddWithValue("person_id", person.person_id);
-                cmd.ExecuteNonQuery();
-                Console.WriteLine($"DELETED {person.person_name} FROM PERSON TABLE");
-            }
-        }
-
-        public static void UpdatePerson(Person person, NpgsqlConnection connection)
-        {
-            try
-            {
-                string commandText = $@"UPDATE PERSON SET person_name = @person_name WHERE id = @person_id;";
-
-                using (var cmd = new NpgsqlCommand(commandText, connection))
-                {
-                    cmd.Parameters.AddWithValue("person_id", person.person_id);
-                    cmd.Parameters.AddWithValue("person_name", person.person_name);
-                    cmd.Parameters.AddWithValue("person_surname", person.person_surname);
-                    cmd.Parameters.AddWithValue("identity_code", person.identity_code);
-
-                    cmd.ExecuteNonQuery();
-                    Console.WriteLine($"UPDATED PERSON WITH ID {person.person_id} IN PERSON TABLE");
-                }
-            }
-            catch (Exception)
-            {
-                Console.WriteLine($"ERROR - Person with ID {person.person_id} does not exist");
-            }
         }
     }
 }
