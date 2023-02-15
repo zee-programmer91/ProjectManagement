@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using ProjectManagement.Model;
 using ProjectManagement.Database;
+using System;
 
 
 namespace LiveNiceApp
@@ -8,27 +9,26 @@ namespace LiveNiceApp
     internal class QueryPerson
     {
         private static readonly DatabaseConnection database = new DatabaseConnection();
+        private static List<Person> persons;
 
         public static Person[] GetPersonByID(int id)
         {
             database.OpenConnection();
-            List<Person> persons = new List<Person>();
+            persons = new List<Person>();
 
-            string commandText = $"SELECT * FROM PERSON WHERE PERSON_ID = @person_id";
             try
             {
-                using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection()))
-                {
-                    cmd.Parameters.AddWithValue("person_id", id);
+                string commandText = $"SELECT * FROM PERSON WHERE PERSON_ID = @person_id";
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", id);
 
-                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                        {
-                            Person person = ReadPerson(reader);
-                            database.DisposeConnection();
-                            persons.Add(person);
-                            return persons.ToArray();
-                        }
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Person person = ReadPerson(reader);
+                    database.DisposeConnection();
+                    persons.Add(person);
+                    return persons.ToArray();
                 }
             } catch(Exception e)
             {
@@ -43,36 +43,51 @@ namespace LiveNiceApp
         public static Person[] GetAllPersons()
         {
             database.OpenConnection();
-            List<Person> persons = new List<Person>();
+            persons = new();
 
-            string commandText = $"SELECT * FROM PERSON";
-            using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection()))
+            try
             {
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                    {
-                        Person person = ReadPerson(reader);
-                        persons.Add(person);
-                    }
+                string commandText = $"SELECT * FROM PERSON";
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Person person = ReadPerson(reader);
+                    persons.Add(person);
+                }
+            } catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not all person from the Person table");
             }
+
             database.DisposeConnection();
             return persons.ToArray();
         }
 
-        public static void AddPerson(Person person)
+        public static Person[] AddPerson(string name, string surname, string identityCode)
         {
             database.OpenConnection();
 
-            string commandText = $"INSERT INTO PERSON (person_name, person_surname, identity_code) VALUES(@person_name,@person_surname,@identity_code);";
+            try
+            {
+                string commandText = $"INSERT INTO PERSON (person_name, person_surname, identity_code) VALUES(@person_name,@person_surname,@identity_code);";
 
-            using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
-            cmd.Parameters.AddWithValue("person_name", person.personName);
-            cmd.Parameters.AddWithValue("person_surname", person.personSurname);
-            cmd.Parameters.AddWithValue("identity_code", person.identityCode);
-            cmd.ExecuteNonQuery();
+                using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                cmd.Parameters.AddWithValue("person_name", name);
+                cmd.Parameters.AddWithValue("person_surname", surname);
+                cmd.Parameters.AddWithValue("identity_code", identityCode);
+                cmd.ExecuteNonQuery();
 
-            Console.WriteLine($"SAVED {person.personName} INTO PERSON TABLE");
+                Console.WriteLine($"Saved person into the Person table");
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not save person to the Person table");
+            }
+
             database.DisposeConnection();
+            return GetAllPersons();
         }
 
         public static void DeletePerson(int person_id)

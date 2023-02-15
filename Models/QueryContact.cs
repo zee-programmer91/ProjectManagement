@@ -56,18 +56,31 @@ namespace ProjectManagement.Models
             return contacts.ToArray();
         }
 
-            public static void AddContact(Contact contact, NpgsqlConnection connection)
+            public static Contact[] AddContact(int person_id, string cellphone, string email)
         {
-            string commandText = $"INSERT INTO CONTACT (contact_id, person_id, email, cellphone_number) VALUES(@contact_id,@person_id,@email, @cellphone_number);";
-            using (var cmd = new NpgsqlCommand(commandText, connection))
-            {
-                cmd.Parameters.AddWithValue("person_id", contact.person_id);
-                cmd.Parameters.AddWithValue("email", contact.Email);
-                cmd.Parameters.AddWithValue("cellphone_number", contact.cellphone_number);
+            databaseConnection.OpenConnection();
+            List<Contact> contacts = new();
 
-                cmd.ExecuteNonQueryAsync();
-                Console.WriteLine($"SAVED CONTACT WITH ID {contact.contact_id} INTO CONTACT TABLE");
+            try
+            {
+                string commandText = $"INSERT INTO CONTACT (contact_id, person_id, email, cellphone_number) VALUES(@contact_id,@person_id,@email, @cellphone_number);";
+                using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
+                {
+                    cmd.Parameters.AddWithValue("person_id", person_id);
+                    cmd.Parameters.AddWithValue("email", email);
+                    cmd.Parameters.AddWithValue("cellphone_number", cellphone);
+
+                    cmd.ExecuteNonQueryAsync();
+                    Console.WriteLine($"Saved contact of person with ID {person_id} INTO CONTACT table");
+                }
+            } catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not add contact details to the contact table for the person with the ID {person_id}");
             }
+
+            databaseConnection.DisposeConnection();
+            return contacts.ToArray();
         }
 
         public static void DeleteContact(Contact contact) { }

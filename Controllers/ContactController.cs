@@ -21,6 +21,12 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryContact.GetContactByID(id));
         }
 
+        [HttpPost("AddContact/{person_id}", Name = "AddContact")]
+        public IActionResult AddContact(int person_id, string cellphone, string email)
+        {
+            return new ObjectResult(QueryContact.AddContact(person_id, cellphone, email));
+        }
+
         [HttpGet("UpdateEmail/{id}", Name = "UpdateEmail")]
         public IActionResult UpdateEmail(int id, string email)
         {
