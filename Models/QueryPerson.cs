@@ -127,6 +127,43 @@ namespace LiveNiceApp
             return persons.ToArray();
         }
 
+        public static Person[] UpdatePersonSurname(int person_id, string person_surname)
+        {
+            int result = 0;
+            List<Person> persons = new List<Person>();
+
+            try
+            {
+                database.OpenConnection();
+            }
+            catch (Exception)
+            {
+                database.DisposeConnection();
+            }
+
+            try
+            {
+                string commandText = $"UPDATE PERSON SET person_surname = @person_surname WHERE person_id = @person_id;";
+
+                using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", person_id);
+                cmd.Parameters.AddWithValue("person_surname", person_surname);
+
+                result = cmd.ExecuteNonQuery();
+                Console.WriteLine($"UPDATED PERSON WITH ID {person_id} IN PERSON TABLE");
+
+                database.DisposeConnection();
+                persons.Add(GetPersonByID(person_id)[0]);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
+            }
+            database.DisposeConnection();
+            return persons.ToArray();
+        }
+
         private static Person ReadPerson(NpgsqlDataReader reader)
         {
 
