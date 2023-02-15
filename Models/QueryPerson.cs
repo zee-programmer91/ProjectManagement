@@ -2,9 +2,6 @@
 using ProjectManagement.Model;
 using ProjectManagement.Database;
 
-using System.Collections.Generic;
-using System;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LiveNiceApp
 {
@@ -18,19 +15,27 @@ namespace LiveNiceApp
             List<Person> persons = new List<Person>();
 
             string commandText = $"SELECT * FROM PERSON WHERE PERSON_ID = @person_id";
-            using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection()))
+            try
             {
-                cmd.Parameters.AddWithValue("person_id", id);
+                using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection()))
+                {
+                    cmd.Parameters.AddWithValue("person_id", id);
 
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                    {
-                        Person person = ReadPerson(reader);
-                        database.DisposeConnection();
-                        persons.Add(person);
-                        return persons.ToArray();
-                    }
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                        {
+                            Person person = ReadPerson(reader);
+                            database.DisposeConnection();
+                            persons.Add(person);
+                            return persons.ToArray();
+                        }
+                }
+            } catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not get Person with ID '{id}'");
             }
+
             database.DisposeConnection();
             return persons.ToArray();
         }
@@ -93,7 +98,14 @@ namespace LiveNiceApp
             try
             {
                 database.OpenConnection();
+            }
+            catch (Exception)
+            {
+                database.DisposeConnection();
+            }
 
+            try
+            {
                 string commandText = $"UPDATE PERSON SET person_name = @person_name WHERE person_id = @person_id;";
 
                 using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
@@ -101,12 +113,15 @@ namespace LiveNiceApp
                 cmd.Parameters.AddWithValue("person_name", person_name);
 
                 result = cmd.ExecuteNonQuery();
-                Console.WriteLine($"UPDATED PERSON WITH ID {person_name} IN PERSON TABLE");
+                Console.WriteLine($"UPDATED PERSON WITH ID {person_id} IN PERSON TABLE");
+
+                database.DisposeConnection();
+                persons.Add(GetPersonByID(person_id)[0]);
             }
             catch (Exception e)
             {
-                Console.WriteLine("ERROR: "+e.Message);
-                Console.WriteLine($"ERROR - Person with ID {person_name} does not exist");
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
             }
             database.DisposeConnection();
             return persons.ToArray();
