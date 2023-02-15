@@ -7,7 +7,7 @@ namespace LiveNiceApp
 {
     internal class QueryPerson
     {
-        private static readonly Database database = new Database();
+        private static readonly DatabaseConnection database = new DatabaseConnection();
 
         public static Person[] GetPersonByID(int id)
         {

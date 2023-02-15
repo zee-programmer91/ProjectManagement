@@ -4,12 +4,12 @@ using ProjectManagement.Config;
 
 namespace ProjectManagement.Database
 {
-    public class Database
+    public class DatabaseConnection
     {
         private NpgsqlConnection connection {get;}
         private readonly string ConnectionString = SetConfiguration();
 
-        public Database()
+        public DatabaseConnection()
         {
             connection = new NpgsqlConnection(ConnectionString);
         }
