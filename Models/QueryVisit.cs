@@ -130,35 +130,35 @@ namespace ProjectManagement.Models
         //            return contacts.ToArray();
         //        }
 
-        //        public static Contact[] UpdateContactCellphone(int id, string cellphone)
-        //        {
-        //            databaseConnection.OpenConnection();
-        //            List<Contact> contacts = new();
+        public static Visit[] UpdateDateOfVisit(int visit_id, DateOnly date)
+        {
+            databaseConnection.OpenConnection();
+            List<Visit> visits = new();
 
-        //            try
-        //            {
-        //                string commandText = $@"UPDATE CONTACT SET cellphone_number = @cellphone WHERE contact_id = @id;";
+            try
+            {
+                string commandText = $@"UPDATE VISIT SET date_of_visit = @date WHERE visit_id = @visit_id;";
 
-        //                using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
-        //                {
-        //                    cmd.Parameters.AddWithValue("cellphone", cellphone);
-        //                    cmd.Parameters.AddWithValue("id", id);
+                using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
+                {
+                    cmd.Parameters.AddWithValue("date", date);
+                    cmd.Parameters.AddWithValue("visit_id", visit_id);
 
-        //                    cmd.ExecuteNonQuery();
-        //                    Console.WriteLine($"UPDATED CONTACT Cellphone WITH ID {id} IN CONTACT TABLE");
-        //                    databaseConnection.DisposeConnection();
-        //                    contacts.Add(GetContactByID(id)[0]);
-        //                }
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                Console.WriteLine(e.Message);
-        //                Console.WriteLine($"ERROR - Could not update CONTACT table with id {id}");
-        //            }
+                    cmd.ExecuteNonQuery();
+                    Console.WriteLine($"UPDATED VISIT DateFROM WITH ID {visit_id} IN VISIT TABLE");
+                    databaseConnection.DisposeConnection();
+                    visits.Add(GetVisitByID(visit_id)[0]);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not update CONTACT table with id {visit_id}");
+            }
 
-        //            databaseConnection.DisposeConnection();
-        //            return contacts.ToArray();
-        //        }
+            databaseConnection.DisposeConnection();
+            return visits.ToArray();
+        }
 
         //        private static Contact ReadContact(NpgsqlDataReader reader)
         //        {

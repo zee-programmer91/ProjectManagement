@@ -27,9 +27,9 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpPost("UpdateDateOfVisit/{visit_id}", Name = "UpdateDateOfVisit")]
-        public IActionResult UpdateDateOfVisit(int id, DateOnly date)
+        public IActionResult UpdateDateOfVisit(int visit_id, DateOnly date)
         {
-            return View();
+            return new ObjectResult(QueryVisit.UpdateDateOfVisit(visit_id, date));
         }
     }
 }
