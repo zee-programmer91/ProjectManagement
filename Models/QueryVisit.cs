@@ -9,10 +9,10 @@ namespace ProjectManagement.Models
     {
         private static readonly DatabaseConnection databaseConnection = new DatabaseConnection();
 
-        public static Contact[] GetVisitByID(int visit_id)
+        public static Visit[] GetVisitByID(int visit_id)
         {
             databaseConnection.OpenConnection();
-            List<Contact> contacts = new();
+            List<Visit> visits = new();
 
             try
             {
@@ -24,10 +24,10 @@ namespace ProjectManagement.Models
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Contact contact = DatabaseReaders.ReadContact(reader);
+                    Visit visit = DatabaseReaders.ReadVisit(reader);
                     databaseConnection.DisposeConnection();
-                    contacts.Add(contact);
-                    return contacts.ToArray();
+                    visits.Add(visit);
+                    return visits.ToArray();
                 }
                 Console.WriteLine($"Selected a visit with the ID {visit_id} from the Visit table");
             }
@@ -38,7 +38,7 @@ namespace ProjectManagement.Models
             }
 
             databaseConnection.DisposeConnection();
-            return contacts.ToArray();
+            return visits.ToArray();
         }
 
         public static Visit[] GetVisits()
