@@ -1,0 +1,6 @@
+{
+  "Host": "localhost:5050",
+  "Username": "postgres",
+  "Password": "2023@Intern",
+  "DatabaseName": "LiveNice"
+}

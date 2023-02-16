@@ -8,25 +8,25 @@ namespace LiveNiceApp
 {
     internal class QueryPerson
     {
-        private static readonly DatabaseConnection database = new DatabaseConnection();
+        private static readonly DatabaseConnection databaseCnnection = new DatabaseConnection();
         private static List<Person> persons;
 
         public static Person[] GetPersonByID(int id)
         {
-            database.OpenConnection();
+            databaseCnnection.OpenConnection();
             persons = new List<Person>();
 
             try
             {
                 string commandText = $"SELECT * FROM PERSON WHERE PERSON_ID = @person_id";
-                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
                 cmd.Parameters.AddWithValue("person_id", id);
 
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     Person person = ReadPerson(reader);
-                    database.DisposeConnection();
+                    databaseCnnection.DisposeConnection();
                     persons.Add(person);
                     return persons.ToArray();
                 }
@@ -36,19 +36,19 @@ namespace LiveNiceApp
                 Console.WriteLine($"ERROR - Could not get Person with ID '{id}'");
             }
 
-            database.DisposeConnection();
+            databaseCnnection.DisposeConnection();
             return persons.ToArray();
         }
 
         public static Person[] GetAllPersons()
         {
-            database.OpenConnection();
+            databaseCnnection.OpenConnection();
             persons = new();
 
             try
             {
                 string commandText = $"SELECT * FROM PERSON";
-                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -61,19 +61,19 @@ namespace LiveNiceApp
                 Console.WriteLine($"ERROR - Could not all person from the Person table");
             }
 
-            database.DisposeConnection();
+            databaseCnnection.DisposeConnection();
             return persons.ToArray();
         }
 
         public static Person[] AddPerson(string name, string surname, string identityCode)
         {
-            database.OpenConnection();
+            databaseCnnection.OpenConnection();
 
             try
             {
                 string commandText = $"INSERT INTO PERSON (person_name, person_surname, identity_code) VALUES(@person_name,@person_surname,@identity_code);";
 
-                using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
                 cmd.Parameters.AddWithValue("person_name", name);
                 cmd.Parameters.AddWithValue("person_surname", surname);
                 cmd.Parameters.AddWithValue("identity_code", identityCode);
@@ -86,23 +86,23 @@ namespace LiveNiceApp
                 Console.WriteLine($"ERROR - Could not save person to the Person table");
             }
 
-            database.DisposeConnection();
+            databaseCnnection.DisposeConnection();
             return GetAllPersons();
         }
 
         public static void DeletePerson(int person_id)
         {
-            database.OpenConnection();
+            databaseCnnection.OpenConnection();
 
             string commandText = $"DELETE FROM PERSON WHERE ID = @person_id)";
 
-            using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+            using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
             cmd.Parameters.AddWithValue("person_id", person_id);
 
             cmd.ExecuteNonQuery();
 
             Console.WriteLine($"DELETED PERSON WITH THE ID OF {person_id} FROM PERSON TABLE");
-            database.DisposeConnection();
+            databaseCnnection.DisposeConnection();
         }
 
         public static Person[] UpdatePersonName(int person_id, string person_name)
@@ -112,25 +112,25 @@ namespace LiveNiceApp
 
             try
             {
-                database.OpenConnection();
+                databaseCnnection.OpenConnection();
             }
             catch (Exception)
             {
-                database.DisposeConnection();
+                databaseCnnection.DisposeConnection();
             }
 
             try
             {
                 string commandText = $"UPDATE PERSON SET person_name = @person_name WHERE person_id = @person_id;";
 
-                using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
                 cmd.Parameters.AddWithValue("person_id", person_id);
                 cmd.Parameters.AddWithValue("person_name", person_name);
 
                 result = cmd.ExecuteNonQuery();
                 Console.WriteLine($"UPDATED PERSON WITH ID {person_id} IN PERSON TABLE");
 
-                database.DisposeConnection();
+                databaseCnnection.DisposeConnection();
                 persons.Add(GetPersonByID(person_id)[0]);
             }
             catch (Exception e)
@@ -138,7 +138,7 @@ namespace LiveNiceApp
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
             }
-            database.DisposeConnection();
+            databaseCnnection.DisposeConnection();
             return persons.ToArray();
         }
 
@@ -149,25 +149,25 @@ namespace LiveNiceApp
 
             try
             {
-                database.OpenConnection();
+                databaseCnnection.OpenConnection();
             }
             catch (Exception)
             {
-                database.DisposeConnection();
+                databaseCnnection.DisposeConnection();
             }
 
             try
             {
                 string commandText = $"UPDATE PERSON SET person_surname = @person_surname WHERE person_id = @person_id;";
 
-                using var cmd = new NpgsqlCommand(commandText, database.GetConnection());
+                using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
                 cmd.Parameters.AddWithValue("person_id", person_id);
                 cmd.Parameters.AddWithValue("person_surname", person_surname);
 
                 result = cmd.ExecuteNonQuery();
                 Console.WriteLine($"UPDATED PERSON WITH ID {person_id} IN PERSON TABLE");
 
-                database.DisposeConnection();
+                databaseCnnection.DisposeConnection();
                 persons.Add(GetPersonByID(person_id)[0]);
             }
             catch (Exception e)
@@ -175,7 +175,7 @@ namespace LiveNiceApp
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
             }
-            database.DisposeConnection();
+            databaseCnnection.DisposeConnection();
             return persons.ToArray();
         }
 

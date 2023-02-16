@@ -32,3 +32,4 @@ D:\BBD_Training\C#\CsharpProject\ProjectManagement\obj\Debug\net7.0\ProjectManag
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\obj\Debug\net7.0\ProjectManagement.genruntimeconfig.cache
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\obj\Debug\net7.0\ref\ProjectManagement.dll
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\Npgsql.dll
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\databaseConfig.json

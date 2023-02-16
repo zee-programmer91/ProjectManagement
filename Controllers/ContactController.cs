@@ -27,13 +27,13 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryContact.AddContact(person_id, cellphone, email));
         }
 
-        [HttpGet("UpdateEmail/{id}", Name = "UpdateEmail")]
+        [HttpPost("UpdateEmail/{contact_id}", Name = "UpdateEmail")]
         public IActionResult UpdateEmail(int id, string email)
         {
             return new ObjectResult(QueryContact.UpdateContactEmail(id, email));
         }
 
-        [HttpGet("UpdateCellphone/{id}", Name = "UpdateCellphone")]
+        [HttpPost("UpdateCellphone/{contact_id}", Name = "UpdateCellphone")]
         public IActionResult UpdateCellphone(int id, string cellphone)
         {
             return new ObjectResult(QueryContact.UpdateContactCellphone(id, cellphone));

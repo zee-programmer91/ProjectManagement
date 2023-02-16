@@ -5,9 +5,32 @@ namespace LiveNiceApp
 {
     internal class Contact
     {
-        public int contact_id { get; set; }
-        public int person_id { get; set; }
-        public string Email { get; set; }
-        public int cellphone_number { get; set; }
+        public int contactID = 0;
+        public int personID = 0;
+        public string email = "";
+        public string cellphoneNumber = "";
+
+        public int ContactID
+        {
+            get { return contactID; }
+            set { contactID = value; }
+        }
+        public int PersonID
+        { 
+            get { return personID; }
+            set { personID = value; }
+        }
+        public string Email
+        {
+            get { return email; }
+            set { email = value; }
+        }
+        public string CellphoneNumber
+        {
+            get { return cellphoneNumber; }
+            set { cellphoneNumber = value; }
+        }
+
+        public Contact() { }
     }
 }
