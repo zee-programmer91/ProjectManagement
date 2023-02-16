@@ -104,15 +104,17 @@ namespace ProjectManagement.Models
 
             try
             {
-                string commandText = $@"UPDATE CONTACT SET email = @email WHERE id = @id;";
+                string commandText = $@"UPDATE CONTACT SET email = @email WHERE contact_id = @id;";
 
                 using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
                 {
                     cmd.Parameters.AddWithValue("email", email);
                     cmd.Parameters.AddWithValue("id", id);
 
-                    cmd.ExecuteNonQueryAsync();
+                    cmd.ExecuteNonQuery();
                     Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {id} IN CONTACT TABLE");
+                    databaseConnection.DisposeConnection();
+                    contacts.Add(GetContactByID(id)[0]);
                 }
             } catch(Exception e)
             {

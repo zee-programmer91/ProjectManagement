@@ -27,16 +27,16 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryContact.AddContact(person_id, cellphone, email));
         }
 
-        [HttpPost("UpdateEmail/{contact_id}", Name = "UpdateEmail")]
-        public IActionResult UpdateEmail(int id, string email)
+        [HttpPost("UpdateEmail", Name = "UpdateEmail")]
+        public IActionResult UpdateEmail(int contact_id, string email)
         {
-            return new ObjectResult(QueryContact.UpdateContactEmail(id, email));
+            return new ObjectResult(QueryContact.UpdateContactEmail(contact_id, email));
         }
 
-        [HttpPost("UpdateCellphone/{contact_id}", Name = "UpdateCellphone")]
-        public IActionResult UpdateCellphone(int id, string cellphone)
+        [HttpPost("UpdateCellphone", Name = "UpdateCellphone")]
+        public IActionResult UpdateCellphone(int contact_id, string cellphone)
         {
-            return new ObjectResult(QueryContact.UpdateContactCellphone(id, cellphone));
+            return new ObjectResult(QueryContact.UpdateContactCellphone(contact_id, cellphone));
         }
     }
 }
