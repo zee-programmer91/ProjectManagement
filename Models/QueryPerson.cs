@@ -1,7 +1,7 @@
 ﻿using Npgsql;
 using ProjectManagement.Model;
 using ProjectManagement.Database;
-using ProjectManagement.Readers;
+using ProjectManagement.utlis;
 
 namespace LiveNiceApp
 {
@@ -134,11 +134,13 @@ namespace LiveNiceApp
         {
             int result = 0;
             List<Person> persons = new List<Person>();
+            Person person = new();
+            person.personId = person_id;
+            person.personName = person_name;
+            person.personSurname = person_surname;
 
-            Console.WriteLine("person_id: "+ person_id);
-            Console.WriteLine("person_name: " + person_name);
-            Console.WriteLine("person_surname: " + person_surname);
-
+            string updateQuery = UpdateCreator.CreatePersonUpdateQuery(person);
+            Console.WriteLine("query: "+ updateQuery);
             //try
             //{
             //    databaseCnnection.OpenConnection();

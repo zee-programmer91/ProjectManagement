@@ -2,7 +2,7 @@
 using Npgsql;
 using ProjectManagement.Model;
 
-namespace ProjectManagement.Readers
+namespace ProjectManagement.utlis
 {
     public class DatabaseReaders
     {
@@ -41,7 +41,7 @@ namespace ProjectManagement.Readers
 
             bool deleted = (bool)reader["deleted"];
 
-            Console.WriteLine("id: "+id);
+            Console.WriteLine("id: " + id);
             Console.WriteLine("name: " + name);
             Console.WriteLine("surname: " + surname);
             Console.WriteLine("identity: " + identity);
