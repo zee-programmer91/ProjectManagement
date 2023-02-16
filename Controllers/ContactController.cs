@@ -31,10 +31,16 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryContact.UpdateContact(contact_id, cellphoneNumber, email));
         }
 
-        [HttpDelete("SoftDeleteContact/{contact_id}", Name = "SoftDeleteContact")]
+        [HttpPut("SoftDeleteContact/{contact_id}", Name = "SoftDeleteContact")]
         public IActionResult UpdateContact(int contact_id)
         {
             return new ObjectResult($"Number of rows affected: {QueryContact.SoftDeleteContact(contact_id)}");
+        }
+
+        [HttpDelete("HardDeleteContact/{contact_id}", Name = "HardDeleteContact")]
+        public IActionResult HardDeleteContact(int contact_id)
+        {
+            return new ObjectResult($"Number of rows affected: {QueryContact.HardDeleteContact(contact_id)}");
         }
     }
 }

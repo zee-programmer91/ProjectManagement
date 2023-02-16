@@ -123,14 +123,41 @@ namespace ProjectManagement.Queries
             return result;
         }
 
+        public static int HardDeleteContact(int contact_id)
+        {
+            int result = 0;
+
+            databaseConnection.OpenConnection();
+
+            try
+            {
+                string commandText = $"DELETE FROM CONTACT WHERE contact_id = @contact_id;";
+
+                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("contact_id", contact_id);
+
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"Hard Deleted Contact WITH ID {contact_id} IN CONTACT TABLE");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"ERROR - Person with ID {contact_id} could not be deleted");
+            }
+            databaseConnection.DisposeConnection();
+            return result;
+        }
+
         public static Contact[] UpdateContact(int id, string cellphoneNumber, string email)
         {
+            int result = 0;
+
             databaseConnection.OpenConnection();
             List<Contact> contacts = new();
 
             try
             {
-                string commandText = $@"UPDATE CONTACT SET email = @email WHERE contact_id = @id;";
+                string commandText = $"UPDATE CONTACT SET email = @email WHERE contact_id = @id;";
 
                 using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
                 {
