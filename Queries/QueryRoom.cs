@@ -1,4 +1,4 @@
-﻿namespace ProjectManagement.Models
+﻿namespace ProjectManagement.Queries
 {
     public class QueryRoom
     {

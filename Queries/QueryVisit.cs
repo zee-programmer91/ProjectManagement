@@ -1,6 +1,7 @@
 ﻿using LiveNiceApp;
 using Npgsql;
 using ProjectManagement.Database;
+using ProjectManagement.Queries;
 using ProjectManagement.utlis;
 
 namespace ProjectManagement.Models

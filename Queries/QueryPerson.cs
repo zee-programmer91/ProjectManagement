@@ -3,7 +3,7 @@ using ProjectManagement.Model;
 using ProjectManagement.Database;
 using ProjectManagement.utlis;
 
-namespace LiveNiceApp
+namespace ProjectManagement.Queries
 {
     internal class QueryPerson
     {
@@ -55,7 +55,8 @@ namespace LiveNiceApp
                     persons.Add(person);
                     return persons.ToArray();
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not get Person with ID '{id}'");
@@ -80,7 +81,8 @@ namespace LiveNiceApp
                     Person person = DatabaseReaders.ReadPerson(reader);
                     persons.Add(person);
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
                 Console.WriteLine($"ERROR - Could not all person from the Person table");
@@ -105,7 +107,8 @@ namespace LiveNiceApp
                 cmd.ExecuteNonQuery();
 
                 Console.WriteLine($"Saved person into the Person table");
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not save person to the Person table");
@@ -140,7 +143,7 @@ namespace LiveNiceApp
             person.personSurname = person_surname;
 
             string updateQuery = UpdateCreator.CreatePersonUpdateQuery(person);
-            Console.WriteLine("query: "+ updateQuery);
+            Console.WriteLine("query: " + updateQuery);
             //try
             //{
             //    databaseCnnection.OpenConnection();

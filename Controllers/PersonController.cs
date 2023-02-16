@@ -1,6 +1,6 @@
-﻿using LiveNiceApp;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.Model;
+using ProjectManagement.Queries;
 
 namespace ProjectManagement.Controllers
 {

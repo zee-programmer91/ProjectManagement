@@ -4,7 +4,7 @@ using ProjectManagement.Database;
 using ProjectManagement.Model;
 using ProjectManagement.utlis;
 
-namespace ProjectManagement.Models
+namespace ProjectManagement.Queries
 {
     internal class QueryContact
     {
@@ -59,7 +59,8 @@ namespace ProjectManagement.Models
                     contacts.Add(contact);
                 }
                 Console.WriteLine($"Selected all contacts from the CONTACT Table");
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not get all contacts");
@@ -69,7 +70,7 @@ namespace ProjectManagement.Models
             return contacts.ToArray();
         }
 
-            public static Contact[] AddContact(int person_id, string cellphone, string email)
+        public static Contact[] AddContact(int person_id, string cellphone, string email)
         {
             databaseConnection.OpenConnection();
 
@@ -83,10 +84,11 @@ namespace ProjectManagement.Models
                     cmd.Parameters.AddWithValue("cellphone_number", cellphone);
 
                     Task<int> task = cmd.ExecuteNonQueryAsync();
-                    Console.WriteLine("task result: "+task.Result);
+                    Console.WriteLine("task result: " + task.Result);
                     Console.WriteLine($"Saved contact of person with ID {person_id} INTO CONTACT table");
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not add contact details to the contact table for the person with the ID {person_id}");
@@ -96,9 +98,32 @@ namespace ProjectManagement.Models
             return GetAllContacts();
         }
 
-        public static void DeleteContact(Contact contact) { }
+        public static int SoftDeleteContact(int contact_id)
+        {
+            int result = 0;
 
-        public static Contact[] UpdateContactEmail(int id, string email)
+            databaseConnection.OpenConnection();
+
+            try
+            {
+                string commandText = $"UPDATE CONTACT SET deleted = CAST(1 AS bit) WHERE contact_id = @contact_id;";
+
+                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("contact_id", contact_id);
+
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"Soft Deleted Contact WITH ID {contact_id} IN CONTACT TABLE");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"ERROR - Person with ID {contact_id} could not be deleted");
+            }
+            databaseConnection.DisposeConnection();
+            return result;
+        }
+
+        public static Contact[] UpdateContact(int id, string cellphoneNumber, string email)
         {
             databaseConnection.OpenConnection();
             List<Contact> contacts = new();
@@ -114,35 +139,6 @@ namespace ProjectManagement.Models
 
                     cmd.ExecuteNonQuery();
                     Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {id} IN CONTACT TABLE");
-                    databaseConnection.DisposeConnection();
-                    contacts.Add(GetContactByID(id)[0]);
-                }
-            } catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine($"ERROR - Could not update CONTACT table with id {id}");
-            }
-
-            databaseConnection.DisposeConnection();
-            return contacts.ToArray();
-        }
-
-        public static Contact[] UpdateContactCellphone(int id, string cellphone)
-        {
-            databaseConnection.OpenConnection();
-            List<Contact> contacts = new();
-
-            try
-            {
-                string commandText = $@"UPDATE CONTACT SET cellphone_number = @cellphone WHERE contact_id = @id;";
-
-                using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
-                {
-                    cmd.Parameters.AddWithValue("cellphone", cellphone);
-                    cmd.Parameters.AddWithValue("id", id);
-
-                    cmd.ExecuteNonQuery();
-                    Console.WriteLine($"UPDATED CONTACT Cellphone WITH ID {id} IN CONTACT TABLE");
                     databaseConnection.DisposeConnection();
                     contacts.Add(GetContactByID(id)[0]);
                 }

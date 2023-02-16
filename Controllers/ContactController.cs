@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProjectManagement.Models;
+using ProjectManagement.Queries;
 
 namespace ProjectManagement.Controllers
 {
@@ -25,16 +25,16 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryContact.AddContact(person_id, cellphone, email));
         }
 
-        [HttpPost("UpdateEmail/{contact_id}", Name = "UpdateEmail")]
-        public IActionResult UpdateEmail(int contact_id, string email)
+        [HttpPut("UpdateContact/{contact_id}", Name = "UpdateContact")]
+        public IActionResult UpdateContact(int contact_id, string cellphoneNumber, string email)
         {
-            return new ObjectResult(QueryContact.UpdateContactEmail(contact_id, email));
+            return new ObjectResult(QueryContact.UpdateContact(contact_id, cellphoneNumber, email));
         }
 
-        [HttpPost("UpdateCellphone/{contact_id}", Name = "UpdateCellphone")]
-        public IActionResult UpdateCellphone(int contact_id, string cellphone)
+        [HttpDelete("SoftDeleteContact/{contact_id}", Name = "SoftDeleteContact")]
+        public IActionResult UpdateContact(int contact_id)
         {
-            return new ObjectResult(QueryContact.UpdateContactCellphone(contact_id, cellphone));
+            return new ObjectResult($"Number of rows affected: {QueryContact.SoftDeleteContact(contact_id)}");
         }
     }
 }
