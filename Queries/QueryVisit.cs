@@ -70,12 +70,16 @@ namespace ProjectManagement.Models
             return visits.ToArray();
         }
 
-        public static Visit[] AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id, DateOnly dateOfVisit)
+        public static int AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id, DateTime dateOfVisit)
         {
+            int result = 0;
+
             try
             {
                 QueryPerson.AddPerson(name, surname, identityCode);
+
                 int person_id = QueryPerson.GetPersonID(name, surname);
+
                 QueryContact.AddContact(person_id, cellphone, email);
 
                 databaseConnection.OpenConnection();
@@ -86,8 +90,8 @@ namespace ProjectManagement.Models
                 cmd.Parameters.AddWithValue("tenant_id", tenant_id);
                 cmd.Parameters.AddWithValue("dateOfVisit", dateOfVisit);
 
-                cmd.ExecuteNonQuery();
-                Console.WriteLine($"Saved contact of person with ID {person_id} INTO CONTACT table");
+                result = cmd.ExecuteNonQuery();
+                Console.WriteLine($"Saved contact of person with ID {person_id} INTO VISIT table");
             }
             catch (Exception e)
             {
@@ -96,13 +100,25 @@ namespace ProjectManagement.Models
             }
 
             databaseConnection.DisposeConnection();
-            return GetVisits();
+            return result;
         }
 
-        public static Visit[] UpdateDateOfVisit(int visit_id, DateOnly date)
+        public static int UpdateDateOfVisit(int visit_id, DateTime date)
         {
             databaseConnection.OpenConnection();
-            List<Visit> visits = new();
+            int result = 0;
+
+            DateTime dateToday = DateTime.Today;
+            Console.WriteLine($"today: {dateToday.Day}\nOther: {date.Day}");
+            Console.WriteLine($"today: {dateToday.Year}\nOther: {date.Year}");
+
+            if (dateToday.Year == date.Year && dateToday.Day < date.Day) // same year, different day
+            {
+                return result;
+            } else if (dateToday.Year < date.Year) // different year
+            {
+                return result;
+            }
 
             try
             {
@@ -110,13 +126,12 @@ namespace ProjectManagement.Models
 
                 using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
                 {
-                    cmd.Parameters.AddWithValue("date", date);
+                    cmd.Parameters.AddWithValue("date", date.Date);
                     cmd.Parameters.AddWithValue("visit_id", visit_id);
 
-                    cmd.ExecuteNonQuery();
+                    result = cmd.ExecuteNonQuery();
                     Console.WriteLine($"UPDATED VISIT DateFROM WITH ID {visit_id} IN VISIT TABLE");
                     databaseConnection.DisposeConnection();
-                    visits.Add(GetVisitByID(visit_id)[0]);
                 }
             }
             catch (Exception e)
@@ -126,7 +141,7 @@ namespace ProjectManagement.Models
             }
 
             databaseConnection.DisposeConnection();
-            return visits.ToArray();
+            return result;
         }
     }
 }

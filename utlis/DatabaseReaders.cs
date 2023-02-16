@@ -68,7 +68,7 @@ namespace ProjectManagement.utlis
 
             int tenantID = (int)reader["tenant_id"];
 
-            DateOnly dateOfVisit = (DateOnly)reader["date_of_visit"];
+            DateTime dateOfVisit = (DateTime)reader["date_of_visit"];
 
             Visit visit = new()
             {

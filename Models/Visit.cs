@@ -7,7 +7,7 @@ namespace LiveNiceApp
         public int visitorID = 0;
         public int personID = 0;
         public int tenantID = 0;
-        public DateOnly dateOfVisit = new();
+        public DateTime dateOfVisit = new();
 
         public int VisitorID
         {
@@ -24,7 +24,7 @@ namespace LiveNiceApp
             get { return tenantID; }
             set { tenantID = value; }
         }
-        public DateOnly DateOfVisit
+        public DateTime DateOfVisit
         {
             get { return dateOfVisit; }
             set { dateOfVisit = value; }
