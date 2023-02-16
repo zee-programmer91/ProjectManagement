@@ -15,15 +15,15 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpGet("{visit_id}", Name = "GetVisit")]
-        public IActionResult GetVisitsOfTenant(int id)
+        public IActionResult GetVisitsOfTenant(int visit_id)
         {
-            return new ObjectResult(QueryVisit.GetVisitByID(id));
+            return new ObjectResult(QueryVisit.GetVisitByID(visit_id));
         }
 
         [HttpPost("AddVisit/{tenant_id}", Name = "AddVisit")]
-        public IActionResult AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id)
+        public IActionResult AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id, DateOnly dateOfVisit)
         {
-            return new ObjectResult(QueryVisit.AddVisit(name, surname, identityCode, email, cellphone, tenant_id));
+            return new ObjectResult(QueryVisit.AddVisit(name, surname, identityCode, email, cellphone, tenant_id, dateOfVisit));
         }
 
         [HttpPost("UpdateDateOfVisit/{visit_id}", Name = "UpdateDateOfVisit")]

@@ -69,26 +69,24 @@ namespace ProjectManagement.Models
             return visits.ToArray();
         }
 
-        public static Visit[] AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id)
+        public static Visit[] AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id, DateOnly dateOfVisit)
         {
-            databaseConnection.OpenConnection();
-
             try
             {
-                int person_id = 0;
                 QueryPerson.AddPerson(name, surname, identityCode);
+                int person_id = QueryPerson.GetPersonID(name, surname);
+                QueryContact.AddContact(person_id, cellphone, email);
 
-                string commandText = $"INSERT INTO VISIT (person_id, tenant_id, date_of_visit) VALUES(@person_id,@tenant_id, @cellphone);";
-                using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
-                {
-                    cmd.Parameters.AddWithValue("person_id", person_id);
-                    cmd.Parameters.AddWithValue("tenant_id", tenant_id);
+                databaseConnection.OpenConnection();
+                string commandText = $"INSERT INTO VISIT (person_id, tenant_id, date_of_visit) VALUES(@person_id,@tenant_id, @dateOfVisit);";
 
+                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", person_id);
+                cmd.Parameters.AddWithValue("tenant_id", tenant_id);
+                cmd.Parameters.AddWithValue("dateOfVisit", dateOfVisit);
 
-                    Task<int> task = cmd.ExecuteNonQueryAsync();
-                    Console.WriteLine("task result: " + task.Result);
-                    Console.WriteLine($"Saved contact of person with ID {person_id} INTO CONTACT table");
-                }
+                cmd.ExecuteNonQuery();
+                Console.WriteLine($"Saved contact of person with ID {person_id} INTO CONTACT table");
             }
             catch (Exception e)
             {
