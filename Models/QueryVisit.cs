@@ -98,38 +98,6 @@ namespace ProjectManagement.Models
             return GetVisits();
         }
 
-        //        public static void DeleteContact(Contact contact) { }
-
-        //        public static Contact[] UpdateContactEmail(int id, string email)
-        //        {
-        //            databaseConnection.OpenConnection();
-        //            List<Contact> contacts = new();
-
-        //            try
-        //            {
-        //                string commandText = $@"UPDATE CONTACT SET email = @email WHERE contact_id = @id;";
-
-        //                using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
-        //                {
-        //                    cmd.Parameters.AddWithValue("email", email);
-        //                    cmd.Parameters.AddWithValue("id", id);
-
-        //                    cmd.ExecuteNonQuery();
-        //                    Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {id} IN CONTACT TABLE");
-        //                    databaseConnection.DisposeConnection();
-        //                    contacts.Add(GetContactByID(id)[0]);
-        //                }
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                Console.WriteLine(e.Message);
-        //                Console.WriteLine($"ERROR - Could not update CONTACT table with id {id}");
-        //            }
-
-        //            databaseConnection.DisposeConnection();
-        //            return contacts.ToArray();
-        //        }
-
         public static Visit[] UpdateDateOfVisit(int visit_id, DateOnly date)
         {
             databaseConnection.OpenConnection();
@@ -159,71 +127,5 @@ namespace ProjectManagement.Models
             databaseConnection.DisposeConnection();
             return visits.ToArray();
         }
-
-        //        private static Contact ReadContact(NpgsqlDataReader reader)
-        //        {
-
-        //            var tempId = reader["person_id"];
-        //            int id = 0;
-
-        //            switch (tempId != null)
-        //            {
-        //                case true:
-        //                    id = (int)tempId;
-        //                    break;
-        //                case false:
-        //                    return new Contact();
-        //            }
-
-        //            var tempPersonID = reader["person_id"] as int?;
-        //            int personID;
-
-        //            switch (tempPersonID != null)
-        //            {
-        //                case true:
-        //                    personID = (int)tempPersonID;
-        //                    break;
-        //                case false:
-        //                    personID = 0;
-        //                    break;
-        //            }
-
-        //            var tempEmail = reader["email"] as string;
-        //            string email;
-
-        //            switch (tempEmail != null)
-        //            {
-        //                case true:
-        //                    email = tempEmail;
-        //                    break;
-        //                case false:
-        //                    email = "";
-        //                    break;
-        //            }
-
-        //            var tempCellphoneNumber = reader["cellphone_number"] as string;
-        //            string cellphoneNumber;
-
-        //            switch (tempCellphoneNumber != null)
-        //            {
-        //                case true:
-        //                    cellphoneNumber = tempCellphoneNumber;
-        //                    break;
-        //                case false:
-        //                    cellphoneNumber = "";
-        //                    break;
-        //            }
-
-        //            Contact contact = new()
-        //            {
-        //                contactID = id,
-        //                personID = personID,
-        //                email = email,
-        //                cellphoneNumber = cellphoneNumber,
-        //            };
-
-        //            return contact;
-        //        }
-        //    }
     }
 }

@@ -68,11 +68,11 @@ namespace LiveNiceApp
         public static Person[] GetAllPersons()
         {
             databaseCnnection.OpenConnection();
-            persons = new();
+            persons = new List<Person>();
 
             try
             {
-                string commandText = $"SELECT * FROM PERSON";
+                string commandText = $"SELECT * FROM PERSON WHERE DELETED = CAST(0 as bit);";
                 using NpgsqlCommand cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -82,7 +82,7 @@ namespace LiveNiceApp
                 }
             } catch(Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
                 Console.WriteLine($"ERROR - Could not all person from the Person table");
             }
 
@@ -130,40 +130,44 @@ namespace LiveNiceApp
             databaseCnnection.DisposeConnection();
         }
 
-        public static Person[] UpdatePersonName(int person_id, string person_name)
+        public static Person[] UpdatePerson(int person_id, string person_name, string person_surname)
         {
             int result = 0;
             List<Person> persons = new List<Person>();
 
-            try
-            {
-                databaseCnnection.OpenConnection();
-            }
-            catch (Exception)
-            {
-                databaseCnnection.DisposeConnection();
-            }
+            Console.WriteLine("person_id: "+ person_id);
+            Console.WriteLine("person_name: " + person_name);
+            Console.WriteLine("person_surname: " + person_surname);
 
-            try
-            {
-                string commandText = $"UPDATE PERSON SET person_name = @person_name WHERE person_id = @person_id;";
+            //try
+            //{
+            //    databaseCnnection.OpenConnection();
+            //}
+            //catch (Exception)
+            //{
+            //    databaseCnnection.DisposeConnection();
+            //}
 
-                using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
-                cmd.Parameters.AddWithValue("person_id", person_id);
-                cmd.Parameters.AddWithValue("person_name", person_name);
+            //try
+            //{
+            //    string commandText = $"UPDATE PERSON SET person_name = @person_name WHERE person_id = @person_id;";
 
-                result = cmd.ExecuteNonQuery();
-                Console.WriteLine($"UPDATED PERSON WITH ID {person_id} IN PERSON TABLE");
+            //    using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
+            //    cmd.Parameters.AddWithValue("person_id", person_id);
+            //    cmd.Parameters.AddWithValue("person_name", person_name);
 
-                databaseCnnection.DisposeConnection();
-                persons.Add(GetPersonByID(person_id)[0]);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
-            }
-            databaseCnnection.DisposeConnection();
+            //    result = cmd.ExecuteNonQuery();
+            //    Console.WriteLine($"UPDATED PERSON WITH ID {person_id} IN PERSON TABLE");
+
+            //    databaseCnnection.DisposeConnection();
+            //    persons.Add(GetPersonByID(person_id)[0]);
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
+            //}
+            //databaseCnnection.DisposeConnection();
             return persons.ToArray();
         }
 
@@ -195,6 +199,62 @@ namespace LiveNiceApp
             }
             databaseCnnection.DisposeConnection();
             return persons.ToArray();
+        }
+
+        public static int SoftDelete(int person_id)
+        {
+            int result = 0;
+
+            databaseCnnection.OpenConnection();
+
+            try
+            {
+                string commandText = $"UPDATE PERSON SET deleted = CAST(1 AS bit) WHERE person_id = @person_id;";
+
+                using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", person_id);
+
+                result = cmd.ExecuteNonQuery();
+                Console.WriteLine($"Soft Deleted Person WITH ID {person_id} IN PERSON TABLE");
+
+                databaseCnnection.DisposeConnection();
+                persons.Add(GetPersonByID(person_id)[0]);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
+            }
+            databaseCnnection.DisposeConnection();
+            return result;
+        }
+
+        public static int HardDelete(int person_id)
+        {
+            int result = 0;
+
+            databaseCnnection.OpenConnection();
+
+            try
+            {
+                string commandText = $"DELETE FROM PERSON WHERE person_id = @person_id;";
+
+                using var cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", person_id);
+
+                result = cmd.ExecuteNonQuery();
+                Console.WriteLine($"Hard Deleted Person WITH ID {person_id} IN PERSON TABLE\nRows affected: {result}");
+
+                databaseCnnection.DisposeConnection();
+                persons.Add(GetPersonByID(person_id)[0]);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
+            }
+            databaseCnnection.DisposeConnection();
+            return result;
         }
     }
 }

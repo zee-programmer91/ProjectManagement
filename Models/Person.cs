@@ -7,6 +7,7 @@ namespace ProjectManagement.Model
         public string personName = "";
         public string personSurname = "";
         public string identityCode = "";
+        public bool deleted = false;
 
         public int PersonId {
             get { return personId; } set { personId = value; }
@@ -26,6 +27,12 @@ namespace ProjectManagement.Model
         {
             get { return identityCode; }
             set { identityCode = value; }
+        }
+
+        public bool Deleted
+        {
+            get { return deleted; }
+            set { deleted = value; }
         }
 
         public Person() {}

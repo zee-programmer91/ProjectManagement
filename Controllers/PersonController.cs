@@ -32,16 +32,28 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryPerson.AddPerson(name, surname, identityCode));
         }
 
-        [HttpPost("UpdatePersonName/{person_id}", Name = "UpdatePersonName")]
-        public IActionResult UpdatePersonName(int id, string name)
+        [HttpPut("UpdatePerson/{person_id}", Name = "UpdatePerson")]
+        public IActionResult UpdatePerson(int person_id, string name = "", string surname = "")
         {
-            return new ObjectResult(QueryPerson.UpdatePersonName(id, name));
+            return new ObjectResult(QueryPerson.UpdatePerson(person_id, name, surname));
         }
 
         [HttpPost("UpdatePersonSurname/{person_id}", Name = "UpdatePersonSurname")]
         public IActionResult UpdatePersonSurname(int id, string surnname)
         {
             return new ObjectResult(QueryPerson.UpdatePersonSurname(id, surnname));
+        }
+
+        [HttpPost("SoftDeletePerson/{person_id}", Name = "SoftDeletePerson")]
+        public IActionResult SoftDeletePerson(int person_id)
+        {
+            return new ObjectResult(QueryPerson.SoftDelete(person_id));
+        }
+
+        [HttpPost("HardDeletePerson/{person_id}", Name = "HardDeletePerson")]
+        public IActionResult HardDeletePerson(int person_id)
+        {
+            return new ObjectResult(QueryPerson.HardDelete(person_id));
         }
     }
 }
