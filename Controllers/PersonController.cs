@@ -14,7 +14,7 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryPerson.GetAllPersons());
         }
 
-        [HttpGet("{id}", Name = "GetPerson")]
+        [HttpGet("{person_id}", Name = "GetPerson")]
         public IActionResult GetPerson(int id)
         {
             return new ObjectResult(QueryPerson.GetPersonByID(id));

@@ -14,7 +14,7 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryVisit.GetVisits());
         }
 
-        [HttpGet("{id}", Name = "GetVisit")]
+        [HttpGet("{visit_id}", Name = "GetVisit")]
         public IActionResult GetVisitsOfTenant(int id)
         {
             return new ObjectResult(QueryVisit.GetVisitByID(id));
@@ -26,16 +26,10 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryVisit.AddVisit(name, surname, identityCode, email, cellphone, tenant_id));
         }
 
-        [HttpPost("UpdateDateOfVisit/{id}", Name = "UpdateDateOfVisit")]
+        [HttpPost("UpdateDateOfVisit/{visit_id}", Name = "UpdateDateOfVisit")]
         public IActionResult UpdateDateOfVisit(int id, DateOnly date)
         {
             return View();
         }
-
-        //    [HttpPost("UpdateCellphone", Name = "UpdateCellphone")]
-        //    public IActionResult UpdateCellphone(int contact_id, string cellphone)
-        //    {
-        //        return new ObjectResult(QueryContact.UpdateContactCellphone(contact_id, cellphone));
-        //    }
     }
 }

@@ -13,7 +13,7 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryContact.GetAllContacts());
         }
 
-        [HttpGet("{id}", Name = "GetContact")]
+        [HttpGet("{contact_id}", Name = "GetContact")]
         public IActionResult GetContact(int id)
         {
             return new ObjectResult(QueryContact.GetContactByID(id));
@@ -25,13 +25,13 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryContact.AddContact(person_id, cellphone, email));
         }
 
-        [HttpPost("UpdateEmail", Name = "UpdateEmail")]
+        [HttpPost("UpdateEmail/{contact_id}", Name = "UpdateEmail")]
         public IActionResult UpdateEmail(int contact_id, string email)
         {
             return new ObjectResult(QueryContact.UpdateContactEmail(contact_id, email));
         }
 
-        [HttpPost("UpdateCellphone", Name = "UpdateCellphone")]
+        [HttpPost("UpdateCellphone/{contact_id}", Name = "UpdateCellphone")]
         public IActionResult UpdateCellphone(int contact_id, string cellphone)
         {
             return new ObjectResult(QueryContact.UpdateContactCellphone(contact_id, cellphone));
