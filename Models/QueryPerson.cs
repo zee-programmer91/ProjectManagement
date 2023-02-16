@@ -10,6 +10,32 @@ namespace LiveNiceApp
         private static readonly DatabaseConnection databaseCnnection = new DatabaseConnection();
         private static List<Person> persons;
 
+        public static int GetPersonID(string name, string surname)
+        {
+            databaseCnnection.OpenConnection();
+            persons = new List<Person>();
+            int personID = 0;
+
+            try
+            {
+                string commandText = $"SELECT PERSON.person_id FROM PERSON WHERE person_name = @name and person_surname = @surname;";
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, databaseCnnection.GetConnection());
+                cmd.Parameters.AddWithValue("name", name);
+                cmd.Parameters.AddWithValue("surname", surname);
+
+                personID = (int)cmd.ExecuteScalar();
+                Console.WriteLine($"Found the ID of {name} {surname}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not get Person with Name '{name}' and Surname '{surname}'");
+            }
+
+            databaseCnnection.DisposeConnection();
+            return personID;
+        }
+
         public static Person[] GetPersonByID(int id)
         {
             databaseCnnection.OpenConnection();
@@ -146,14 +172,7 @@ namespace LiveNiceApp
             int result = 0;
             List<Person> persons = new List<Person>();
 
-            try
-            {
-                databaseCnnection.OpenConnection();
-            }
-            catch (Exception)
-            {
-                databaseCnnection.DisposeConnection();
-            }
+            databaseCnnection.OpenConnection();
 
             try
             {

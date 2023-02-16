@@ -76,11 +76,14 @@ namespace ProjectManagement.Models
             try
             {
                 int person_id = 0;
+                QueryPerson.AddPerson(name, surname, identityCode);
+
                 string commandText = $"INSERT INTO VISIT (person_id, tenant_id, date_of_visit) VALUES(@person_id,@tenant_id, @cellphone);";
                 using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
                 {
                     cmd.Parameters.AddWithValue("person_id", person_id);
                     cmd.Parameters.AddWithValue("tenant_id", tenant_id);
+
 
                     Task<int> task = cmd.ExecuteNonQueryAsync();
                     Console.WriteLine("task result: " + task.Result);
