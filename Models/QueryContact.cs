@@ -2,6 +2,7 @@
 using Npgsql;
 using ProjectManagement.Database;
 using ProjectManagement.Model;
+using ProjectManagement.Readers;
 
 namespace ProjectManagement.Models
 {
@@ -24,7 +25,7 @@ namespace ProjectManagement.Models
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Contact contact = ReadContact(reader);
+                    Contact contact = DatabaseReaders.ReadContact(reader);
                     databaseConnection.DisposeConnection();
                     contacts.Add(contact);
                     return contacts.ToArray();
@@ -54,7 +55,7 @@ namespace ProjectManagement.Models
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Contact contact = ReadContact(reader);
+                    Contact contact = DatabaseReaders.ReadContact(reader);
                     contacts.Add(contact);
                 }
                 Console.WriteLine($"Selected all contacts from the CONTACT Table");
@@ -154,71 +155,6 @@ namespace ProjectManagement.Models
 
             databaseConnection.DisposeConnection();
             return contacts.ToArray();
-        }
-
-        private static Contact ReadContact(NpgsqlDataReader reader)
-        {
-
-            var tempId = reader["person_id"];
-            int id = 0;
-
-            switch (tempId != null)
-            {
-                case true:
-                    id = (int)tempId;
-                    break;
-                case false:
-                    return new Contact();
-            }
-
-            var tempPersonID = reader["person_id"] as int?;
-            int personID;
-
-            switch (tempPersonID != null)
-            {
-                case true:
-                    personID = (int)tempPersonID;
-                    break;
-                case false:
-                    personID = 0;
-                    break;
-            }
-
-            var tempEmail = reader["email"] as string;
-            string email;
-
-            switch (tempEmail != null)
-            {
-                case true:
-                    email = tempEmail;
-                    break;
-                case false:
-                    email = "";
-                    break;
-            }
-
-            var tempCellphoneNumber = reader["cellphone_number"] as string;
-            string cellphoneNumber;
-
-            switch (tempCellphoneNumber != null)
-            {
-                case true:
-                    cellphoneNumber = tempCellphoneNumber;
-                    break;
-                case false:
-                    cellphoneNumber = "";
-                    break;
-            }
-
-            Contact contact = new()
-            {
-                contactID = id,
-                personID = personID,
-                email = email,
-                cellphoneNumber = cellphoneNumber,
-            };
-
-            return contact;
         }
     }
 }

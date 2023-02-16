@@ -3,7 +3,7 @@ using System;
 
 namespace LiveNiceApp
 {
-    internal class Contact
+    public class Contact
     {
         public int contactID = 0;
         public int personID = 0;

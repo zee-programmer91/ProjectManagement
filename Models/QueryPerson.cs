@@ -1,8 +1,7 @@
 ﻿using Npgsql;
 using ProjectManagement.Model;
 using ProjectManagement.Database;
-using System;
-
+using ProjectManagement.Readers;
 
 namespace LiveNiceApp
 {
@@ -25,7 +24,7 @@ namespace LiveNiceApp
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Person person = ReadPerson(reader);
+                    Person person = DatabaseReaders.ReadPerson(reader);
                     databaseCnnection.DisposeConnection();
                     persons.Add(person);
                     return persons.ToArray();
@@ -52,7 +51,7 @@ namespace LiveNiceApp
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Person person = ReadPerson(reader);
+                    Person person = DatabaseReaders.ReadPerson(reader);
                     persons.Add(person);
                 }
             } catch(Exception e)
@@ -177,71 +176,6 @@ namespace LiveNiceApp
             }
             databaseCnnection.DisposeConnection();
             return persons.ToArray();
-        }
-
-        private static Person ReadPerson(NpgsqlDataReader reader)
-        {
-
-            var tempId = reader["person_id"];
-            int id = 0;
-
-            switch (tempId != null)
-            {
-                case true:
-                    id = (int)tempId;
-                    break;
-                case false:
-                    return new Person();
-            }
-
-            var tempName = reader["person_name"] as string;
-            string name;
-
-            switch (tempName != null)
-            {
-                case true:
-                    name = tempName;
-                    break;
-                case false:
-                    name = "";
-                    break;
-            }
-
-            var tempSurname = reader["person_surname"] as string;
-            string surname;
-
-            switch (tempSurname != null)
-            {
-                case true:
-                    surname = tempSurname;
-                    break;
-                case false:
-                    surname = "";
-                    break;
-            }
-
-            var tempIdentity = reader["identity_code"] as string;
-            string identity;
-
-            switch (tempIdentity != null)
-            {
-                case true:
-                    identity = tempIdentity;
-                    break;
-                case false:
-                    identity = "";
-                    break;
-            }
-
-            Person person = new()
-            {
-                personId = id,
-                personName = name,
-                personSurname = surname,
-                identityCode = identity,
-            };
-
-            return person;
         }
     }
 }
