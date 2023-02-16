@@ -133,15 +133,17 @@ namespace ProjectManagement.Models
 
             try
             {
-                string commandText = $@"UPDATE CONTACT SET cellphone = @cellphone WHERE id = @id;";
+                string commandText = $@"UPDATE CONTACT SET cellphone_number = @cellphone WHERE contact_id = @id;";
 
                 using (var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
                 {
                     cmd.Parameters.AddWithValue("cellphone", cellphone);
                     cmd.Parameters.AddWithValue("id", id);
 
-                    cmd.ExecuteNonQueryAsync();
+                    cmd.ExecuteNonQuery();
                     Console.WriteLine($"UPDATED CONTACT Cellphone WITH ID {id} IN CONTACT TABLE");
+                    databaseConnection.DisposeConnection();
+                    contacts.Add(GetContactByID(id)[0]);
                 }
             }
             catch (Exception e)
