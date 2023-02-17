@@ -150,19 +150,45 @@ namespace ProjectManagement.Queries
         public static int UpdateContact(int id, string cellphoneNumber, string email)
         {
             databaseConnection.OpenConnection();
-            List<Contact> contacts = new List<Contact>();
             int result = 0;
 
             try
             {
-                string commandText = $"UPDATE CONTACT SET email = @email WHERE contact_id = @id;";
+                string commandText;
 
-                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                if (cellphoneNumber == "" && email == "")
+                {
+                    return result;
+                }
+                else if (cellphoneNumber != "" && email == "")
+                {
+                    commandText = $"UPDATE CONTACT SET CELLPHONE_NUMBER = @cellphoneNumber WHERE contact_id = @id;";
+                    using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
 
-                cmd.Parameters.AddWithValue("email", email);
-                cmd.Parameters.AddWithValue("id", id);
+                    cmd.Parameters.AddWithValue("cellphoneNumber", cellphoneNumber);
+                    cmd.Parameters.AddWithValue("id", id);
+                    result = cmd.ExecuteNonQuery();
+                }
+                else if (cellphoneNumber == "" && email != "")
+                {
+                    commandText = $"UPDATE CONTACT SET EMAIL = @email WHERE contact_id = @id;";
+                    using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
 
-                result = cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("email", email);
+                    cmd.Parameters.AddWithValue("id", id);
+                    result = cmd.ExecuteNonQuery();
+                }
+                else if (cellphoneNumber != "" && email != "")
+                {
+                    commandText = $"UPDATE CONTACT SET EMAIL = @email, SET CELLPHONE_NUMBER = @cellphoneNumber WHERE contact_id = @id;";
+                    using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+
+                    cmd.Parameters.AddWithValue("email", email);
+                    cmd.Parameters.AddWithValue("cellphoneNumber", cellphoneNumber);
+                    cmd.Parameters.AddWithValue("id", id);
+                    result = cmd.ExecuteNonQuery();
+                }
+
                 Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {id} IN CONTACT TABLE");
             }
             catch (Exception e)
