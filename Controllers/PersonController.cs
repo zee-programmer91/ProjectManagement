@@ -21,13 +21,13 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpGet("GetPersonID", Name = "GetPersonID")]
-        public IActionResult GetPersonID(string name, string surname)
+        public IActionResult GetPersonID(string name = "", string surname = "")
         {
             return new ObjectResult($"Number of rows affected: {QueryPerson.GetPersonID(name, surname)}");
         }
 
         [HttpPost("AddPerson", Name = "AddPerson")]
-        public IActionResult AddPerson(string name, string surname, string identityCode)
+        public IActionResult AddPerson(string name = "", string surname = "", string identityCode = "")
         {
             return new ObjectResult($"Number of rows affected: {QueryPerson.AddPerson(name, surname, identityCode)}");
         }

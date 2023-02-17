@@ -40,15 +40,12 @@ namespace ProjectManagement.utlis
             string updateBoth = $"UPDATE VISIT SET DATE_OF_VISIT = {dateOfVisit.Date}, " +
                 $"SET DATE_LEFT_VISIT = {dateLeftVisit.Date} WHERE VISIT_ID = {visit_id};";
 
-            Console.WriteLine($"dateOfVisit.Date : {dateOfVisit.Date}");
             string updateDateOfVisit = $"UPDATE VISIT SET DATE_OF_VISIT = {dateOfVisit.Date} WHERE VISIT_ID = {visit_id};";
             string updateDateLeftVisit = $"UPDATE VISIT SET DATE_LEFT_VISIT = {dateLeftVisit.Date} WHERE VISIT_ID = {visit_id};";
 
             // First check if both the years match the default year
             bool dateOfVisitMatches = dateOfVisit.ToString() == dateTimeDefaultDate;
-            Console.WriteLine($"dateOfVisitMatches: {dateOfVisitMatches}");
             bool dateLeftVisitMatches = dateLeftVisit.ToString() == dateTimeDefaultDate;
-            Console.WriteLine($"dateLeftVisitMatches: {dateLeftVisit.Year} - {dateLeftVisitMatches}");
 
             //  Now match the results to see what string to return
             if (!dateOfVisitMatches && !dateLeftVisitMatches) // Both A and B don't match the default year

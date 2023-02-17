@@ -12,8 +12,20 @@ namespace ProjectManagement.Controllers
             return View();
         }
 
-        [HttpGet("{room_id}", Name = "GetOccupiedRoom")]
+        [HttpGet("GetOccupiedRoom/{room_id}", Name = "GetOccupiedRoom")]
         public IActionResult GetOccupiedRoom()
+        {
+            return View();
+        }
+
+        [HttpPut("AddRoom/{room_id}", Name = "AddRoom")]
+        public IActionResult AddRoom()
+        {
+            return View();
+        }
+
+        [HttpDelete("DeleteRoom/{room_id}", Name = "DeleteRoom")]
+        public IActionResult DeleteRoom()
         {
             return View();
         }

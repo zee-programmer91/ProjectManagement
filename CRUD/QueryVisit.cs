@@ -1,12 +1,12 @@
 ﻿using LiveNiceApp;
 using Npgsql;
 using ProjectManagement.Database;
-using ProjectManagement.Queries;
+using ProjectManagement.CRUD;
 using ProjectManagement.utlis;
 
 namespace ProjectManagement.Models
 {
-    internal class QueryVisit
+    public class QueryVisit
     {
         private static readonly DatabaseConnection databaseConnection = new DatabaseConnection();
 
@@ -194,6 +194,11 @@ namespace ProjectManagement.Models
 
             databaseConnection.DisposeConnection();
             return result;
+        }
+
+        public static void CloseOpenConnection()
+        {
+            databaseConnection.DisposeConnection();
         }
     }
 }

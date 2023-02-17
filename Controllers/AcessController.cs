@@ -12,8 +12,14 @@ namespace ProjectManagement.Controllers
             return View();
         }
 
-        [HttpGet("{access_id}", Name = "GetAccessType")]
+        [HttpGet("GetAccessType/{access_id}", Name = "GetAccessType")]
         public IActionResult GetAccessType(int access_id)
+        {
+            return View();
+        }
+
+        [HttpPut("AddAccessType", Name = "AddAccessType")]
+        public IActionResult AddAccessType(int access_id)
         {
             return View();
         }

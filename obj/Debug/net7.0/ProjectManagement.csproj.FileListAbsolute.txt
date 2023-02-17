@@ -33,3 +33,5 @@ D:\BBD_Training\C#\CsharpProject\ProjectManagement\obj\Debug\net7.0\ProjectManag
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\obj\Debug\net7.0\ref\ProjectManagement.dll
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\Npgsql.dll
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\databaseConfig.json
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\LiveNiceTest\obj\LiveNiceTest.vbproj.nuget.dgspec.json
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\LiveNiceTest\obj\project.assets.json

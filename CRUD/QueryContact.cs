@@ -1,10 +1,9 @@
 ﻿using LiveNiceApp;
 using Npgsql;
 using ProjectManagement.Database;
-using ProjectManagement.Model;
 using ProjectManagement.utlis;
 
-namespace ProjectManagement.Queries
+namespace ProjectManagement.CRUD
 {
     public class QueryContact
     {
@@ -23,13 +22,19 @@ namespace ProjectManagement.Queries
                 cmd.Parameters.AddWithValue("contact_id", contact_id);
 
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
+                
+                if (!reader.Read()) {
+                    databaseConnection.DisposeConnection();
+                    return results;
+                }
                 while (reader.Read())
                 {
                     Contact contact = DatabaseReaders.ReadContact(reader);
-                    databaseConnection.DisposeConnection();
-                    results = 1;
                 }
-                Console.WriteLine($"Selected all contacts from the CONTACT Table");
+                results = 1;
+                Console.WriteLine($"Selected contact with ID {contact_id} from the CONTACT Table");
+                databaseConnection.DisposeConnection();
+
                 return results;
             }
             catch (Exception)
@@ -57,9 +62,11 @@ namespace ProjectManagement.Queries
                 {
                     Contact contact = DatabaseReaders.ReadContact(reader);
                     contacts.Add(contact);
+                    results++;
                 }
                 Console.WriteLine($"Selected all contacts from the CONTACT Table");
-                results = 1;
+                databaseConnection.DisposeConnection();
+
                 return results;
             }
             catch (Exception e)
@@ -158,6 +165,7 @@ namespace ProjectManagement.Queries
 
                 if (cellphoneNumber == "" && email == "")
                 {
+                    databaseConnection.DisposeConnection();
                     return result;
                 }
                 else if (cellphoneNumber != "" && email == "")
@@ -191,14 +199,18 @@ namespace ProjectManagement.Queries
 
                 Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {id} IN CONTACT TABLE");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not update CONTACT table with id {id}");
             }
 
             databaseConnection.DisposeConnection();
             return result;
+        }
+
+        public static void CloseOpenConnection()
+        {
+            databaseConnection.DisposeConnection();
         }
     }
 }
