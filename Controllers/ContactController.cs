@@ -16,19 +16,19 @@ namespace ProjectManagement.Controllers
         [HttpGet("{contact_id}", Name = "GetContact")]
         public IActionResult GetContact(int id)
         {
-            return new ObjectResult(QueryContact.GetContactByID(id));
+            return new ObjectResult($"Number of rows affeced: {QueryContact.GetContactByID(id)}");
         }
 
         [HttpPost("AddContact/{person_id}", Name = "AddContact")]
         public IActionResult AddContact(int person_id, string cellphone, string email)
         {
-            return new ObjectResult(QueryContact.AddContact(person_id, cellphone, email));
+            return new ObjectResult($"Number of rows affected: {QueryContact.AddContact(person_id, cellphone, email)}");
         }
 
         [HttpPut("UpdateContact/{contact_id}", Name = "UpdateContact")]
         public IActionResult UpdateContact(int contact_id, string cellphoneNumber, string email)
         {
-            return new ObjectResult(QueryContact.UpdateContact(contact_id, cellphoneNumber, email));
+            return new ObjectResult($"Number of rows affected: {QueryContact.UpdateContact(contact_id, cellphoneNumber, email)}");
         }
 
         [HttpPut("SoftDeleteContact/{contact_id}", Name = "SoftDeleteContact")]

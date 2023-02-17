@@ -41,13 +41,13 @@ namespace ProjectManagement.Controllers
         [HttpPost("SoftDeletePerson/{person_id}", Name = "SoftDeletePerson")]
         public IActionResult SoftDeletePerson(int person_id)
         {
-            return new ObjectResult(QueryPerson.SoftDelete(person_id));
+            return new ObjectResult(QueryPerson.SoftDeletePerson(person_id));
         }
 
         [HttpDelete("HardDeletePerson/{person_id}", Name = "HardDeletePerson")]
         public IActionResult HardDeletePerson(int person_id)
         {
-            return new ObjectResult($"Number of rows affected: {QueryPerson.HardDelete(person_id)}");
+            return new ObjectResult($"Number of rows affected: {QueryPerson.HardDeletePerson(person_id)}");
         }
     }
 }

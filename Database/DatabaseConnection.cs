@@ -21,12 +21,12 @@ namespace ProjectManagement.Database
 
         public void OpenConnection()
         {
-            connection.Open();
+            connection?.Open();
         }
 
         public void DisposeConnection()
         {
-            connection.Close();
+            connection?.Close();
         }
 
         public static string SetConfiguration()

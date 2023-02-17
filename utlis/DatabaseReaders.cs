@@ -33,19 +33,13 @@ namespace ProjectManagement.utlis
 
             int id = (int)reader["person_id"];
 
-            string name = reader["person_name"] as string;
+            string? name = reader["person_name"] as string;
 
             string surname = reader["person_surname"] as string;
 
             string identity = reader["identity_code"] as string;
 
             bool deleted = (bool)reader["deleted"];
-
-            Console.WriteLine("id: " + id);
-            Console.WriteLine("name: " + name);
-            Console.WriteLine("surname: " + surname);
-            Console.WriteLine("identity: " + identity);
-            Console.WriteLine("deleted: " + deleted);
 
             Person person = new()
             {
