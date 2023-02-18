@@ -1,56 +1,51 @@
 ﻿using LiveNiceApp;
+using Model;
 using Npgsql;
 using ProjectManagement.Database;
+using ProjectManagement.Models;
 using ProjectManagement.utlis;
+using static ProjectManagement.Models.DatabaseActions;
 
 namespace ProjectManagement.CRUD
 {
-    public class QueryContact
+    public class QueryContact : DatabaseActionsBridge
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0090:Use 'new(...)'", Justification = "<Pending>")]
         private static readonly DatabaseConnection databaseConnection = new DatabaseConnection();
 
-        public static int GetContactByID(int contact_id)
+        public static new object GetByID(int ID)
         {
             databaseConnection.OpenConnection();
-            int results = 0;
-
             try
             {
                 string commandText = $"SELECT * FROM CONTACT WHERE contact_id = @contact_id;";
                 using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
 
-                cmd.Parameters.AddWithValue("contact_id", contact_id);
+                cmd.Parameters.AddWithValue("contact_id", ID);
 
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
-                
-                if (!reader.Read()) {
-                    databaseConnection.DisposeConnection();
-                    return results;
-                }
                 while (reader.Read())
                 {
                     Contact contact = DatabaseReaders.ReadContact(reader);
-                }
-                results = 1;
-                Console.WriteLine($"Selected contact with ID {contact_id} from the CONTACT Table");
-                databaseConnection.DisposeConnection();
+                    Console.WriteLine($"Selected contact with ID {ID} from the CONTACT Table");
+                    databaseConnection.DisposeConnection();
 
-                return results;
+                    return contact;
+                }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine($"ERROR - Could not get all contacts");
+                Console.WriteLine($"ERROR - Could not get contact: {e.Message}");
             }
 
             databaseConnection.DisposeConnection();
-            return results;
+            return new Contact();
         }
 
-        public static int GetAllContacts()
+        public static new object GetAll()
         {
             databaseConnection.OpenConnection();
             List<Contact> contacts = new();
-            int results = 0;
 
             try
             {
@@ -62,12 +57,11 @@ namespace ProjectManagement.CRUD
                 {
                     Contact contact = DatabaseReaders.ReadContact(reader);
                     contacts.Add(contact);
-                    results++;
                 }
                 Console.WriteLine($"Selected all contacts from the CONTACT Table");
                 databaseConnection.DisposeConnection();
 
-                return results;
+                return contacts;
             }
             catch (Exception e)
             {
@@ -76,36 +70,42 @@ namespace ProjectManagement.CRUD
             }
 
             databaseConnection.DisposeConnection();
-            return results;
+            return contacts;
         }
 
-        public static int AddContact(int person_id, string cellphone, string email)
+        public static new DatabaseActionsResponses InsertEntry(int ID, object newEntry)
         {
             databaseConnection.OpenConnection();
-            int results = 0;
+            int result = 0;
+            Contact newContact = (Contact)newEntry;
 
             try
             {
                 string commandText = $"INSERT INTO CONTACT (person_id, email, cellphone_number) VALUES(@person_id,@email, @cellphone_number);";
                 using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
 
-                cmd.Parameters.AddWithValue("person_id", person_id);
-                cmd.Parameters.AddWithValue("email", email);
-                cmd.Parameters.AddWithValue("cellphone_number", cellphone);
+                cmd.Parameters.AddWithValue("person_id", ID);
+                cmd.Parameters.AddWithValue("email", newContact.email);
+                cmd.Parameters.AddWithValue("cellphone_number", newContact.cellphoneNumber);
 
-                results = cmd.ExecuteNonQuery();
-                Console.WriteLine($"Saved contact of person with ID {person_id} INTO CONTACT table");
+                result = cmd.ExecuteNonQuery();
+                Console.WriteLine($"Saved contact of person with ID {ID} INTO CONTACT table");
             }
             catch (Exception)
             {
-                Console.WriteLine($"ERROR - Could not add contact details to the contact table for the person with the ID {person_id}");
+                Console.WriteLine($"ERROR - Could not add contact details to the contact table for the person with the ID {ID}");
             }
 
             databaseConnection.DisposeConnection();
-            return results;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int SoftDeleteContact(int contact_id)
+        public static new DatabaseActionsResponses DeleteAll()
+        {
+            return DatabaseActionsResponses.Success;
+        }
+
+        public static new DatabaseActionsResponses SoftDeleteEntryByID(int ID)
         {
             int result = 0;
 
@@ -116,21 +116,21 @@ namespace ProjectManagement.CRUD
                 string commandText = $"UPDATE CONTACT SET deleted = CAST(1 AS bit) WHERE contact_id = @contact_id;";
 
                 using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
-                cmd.Parameters.AddWithValue("contact_id", contact_id);
+                cmd.Parameters.AddWithValue("contact_id", ID);
 
                 result = (int)cmd.ExecuteNonQuery();
-                Console.WriteLine($"Soft Deleted Contact WITH ID {contact_id} IN CONTACT TABLE");
+                Console.WriteLine($"Soft Deleted Contact WITH ID {ID} IN CONTACT TABLE");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
-                Console.WriteLine($"ERROR - Person with ID {contact_id} could not be deleted");
+                Console.WriteLine($"ERROR - Person with ID {ID} could not be deleted");
             }
             databaseConnection.DisposeConnection();
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int HardDeleteContact(int contact_id)
+        public static new DatabaseActionsResponses DeleteEntryByID(int ID)
         {
             databaseConnection.OpenConnection();
             int result = 0;
@@ -140,72 +140,73 @@ namespace ProjectManagement.CRUD
                 string commandText = $"DELETE FROM CONTACT WHERE contact_id = @contact_id;";
 
                 using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
-                cmd.Parameters.AddWithValue("contact_id", contact_id);
+                cmd.Parameters.AddWithValue("contact_id", ID);
 
                 result = (int)cmd.ExecuteNonQuery();
-                Console.WriteLine($"Hard Deleted Contact WITH ID {contact_id} IN CONTACT TABLE");
+                Console.WriteLine($"Hard Deleted Contact WITH ID {ID} IN CONTACT TABLE");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
-                Console.WriteLine($"ERROR - Person with ID {contact_id} could not be deleted");
+                Console.WriteLine($"ERROR - Person with ID {ID} could not be deleted");
             }
             databaseConnection.DisposeConnection();
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int UpdateContact(int id, string cellphoneNumber, string email)
+        public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             databaseConnection.OpenConnection();
             int result = 0;
+            Contact newContact = (Contact)updateEntry;
 
             try
             {
                 string commandText;
 
-                if (cellphoneNumber == "" && email == "")
+                if (newContact.cellphoneNumber == "" && newContact.email == "")
                 {
                     databaseConnection.DisposeConnection();
-                    return result;
+                    return DatabaseActionsResponses.FieldEmpty;
                 }
-                else if (cellphoneNumber != "" && email == "")
+                else if (newContact.cellphoneNumber != "" && newContact.email == "")
                 {
                     commandText = $"UPDATE CONTACT SET CELLPHONE_NUMBER = @cellphoneNumber WHERE contact_id = @id;";
                     using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
 
-                    cmd.Parameters.AddWithValue("cellphoneNumber", cellphoneNumber);
-                    cmd.Parameters.AddWithValue("id", id);
+                    cmd.Parameters.AddWithValue("cellphoneNumber", newContact.cellphoneNumber);
+                    cmd.Parameters.AddWithValue("id", ID);
                     result = cmd.ExecuteNonQuery();
                 }
-                else if (cellphoneNumber == "" && email != "")
+                else if (newContact.cellphoneNumber == "" && newContact.email != "")
                 {
                     commandText = $"UPDATE CONTACT SET EMAIL = @email WHERE contact_id = @id;";
                     using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
 
-                    cmd.Parameters.AddWithValue("email", email);
-                    cmd.Parameters.AddWithValue("id", id);
+                    cmd.Parameters.AddWithValue("email", newContact.email);
+                    cmd.Parameters.AddWithValue("id", ID);
                     result = cmd.ExecuteNonQuery();
                 }
-                else if (cellphoneNumber != "" && email != "")
+                else if (newContact.cellphoneNumber != "" && newContact.email != "")
                 {
                     commandText = $"UPDATE CONTACT SET EMAIL = @email, SET CELLPHONE_NUMBER = @cellphoneNumber WHERE contact_id = @id;";
                     using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
 
-                    cmd.Parameters.AddWithValue("email", email);
-                    cmd.Parameters.AddWithValue("cellphoneNumber", cellphoneNumber);
-                    cmd.Parameters.AddWithValue("id", id);
+                    cmd.Parameters.AddWithValue("email", newContact.email);
+                    cmd.Parameters.AddWithValue("cellphoneNumber", newContact.cellphoneNumber);
+                    cmd.Parameters.AddWithValue("id", ID);
                     result = cmd.ExecuteNonQuery();
                 }
 
-                Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {id} IN CONTACT TABLE");
+                Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {ID} IN CONTACT TABLE");
             }
             catch (Exception)
             {
-                Console.WriteLine($"ERROR - Could not update CONTACT table with id {id}");
+                Console.WriteLine($"ERROR - Could not update CONTACT table with id {ID}");
             }
 
             databaseConnection.DisposeConnection();
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
         public static void CloseOpenConnection()

@@ -3,6 +3,7 @@ using Npgsql;
 using ProjectManagement.Database;
 using ProjectManagement.CRUD;
 using ProjectManagement.utlis;
+using Model;
 
 namespace ProjectManagement.Models
 {
@@ -82,7 +83,7 @@ namespace ProjectManagement.Models
 
                 int person_id = QueryPerson.GetPersonID(name, surname);
 
-                QueryContact.AddContact(person_id, cellphone, email);
+                QueryContact.InsertEntry(person_id, new Contact());
 
                 databaseConnection.OpenConnection();
                 string commandText = $"INSERT INTO VISIT (person_id, tenant_id, date_of_visit) VALUES(@person_id,@tenant_id, @dateOfVisit);";

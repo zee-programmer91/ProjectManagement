@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.Model;
-using ProjectManagement.Queries;
+using ProjectManagement.CRUD;
 
 namespace ProjectManagement.Controllers
 {

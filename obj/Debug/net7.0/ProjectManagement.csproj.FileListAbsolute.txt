@@ -35,3 +35,13 @@ D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\Npgsql.dll
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\databaseConfig.json
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\LiveNiceTest\obj\LiveNiceTest.vbproj.nuget.dgspec.json
 D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\LiveNiceTest\obj\project.assets.json
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\NUnit3.TestAdapter.dll
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\NUnit3.TestAdapter.pdb
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\nunit.engine.dll
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\nunit.engine.api.dll
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\nunit.engine.core.dll
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\testcentric.engine.metadata.dll
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\nunit.framework.dll
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\docfx.json
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\_site\manifest.json
+D:\BBD_Training\C#\CsharpProject\ProjectManagement\bin\Debug\net7.0\_site\search-stopwords.json

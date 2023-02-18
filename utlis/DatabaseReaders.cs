@@ -1,4 +1,5 @@
 ﻿using LiveNiceApp;
+using Model;
 using Npgsql;
 using ProjectManagement.Model;
 
@@ -8,8 +9,7 @@ namespace ProjectManagement.utlis
     {
         public static Contact ReadContact(NpgsqlDataReader reader)
         {
-
-            int id = (int)reader["person_id"];
+            int id = (int)reader["contact_id"];
 
             int personID = (int)reader["person_id"];
 

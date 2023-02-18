@@ -1,7 +1,5 @@
-﻿using Npgsql;
-using System;
-
-namespace LiveNiceApp
+﻿
+namespace Model
 {
     public class Contact
     {
