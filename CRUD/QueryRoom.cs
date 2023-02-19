@@ -138,6 +138,91 @@ namespace ProjectManagement.CRUD
         public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             int result = 0;
+            Room updateRoom = (Room)updateEntry;
+
+            Console.WriteLine($"updateRoomDate => {updateRoom.fromDate}\n {new DateTime(1,1,1)}");
+
+            Dictionary<string, bool> columnEmpty = new Dictionary<string, bool>
+            {
+                { "room_number", false },
+                { "tenant_id", false },
+                { "has_room_access", false },
+                { "from_date", false },
+                { "to_date", false },
+            };
+
+            if (updateRoom.roomNumber == 0)
+            {
+                columnEmpty["room_number"] = true;
+            }
+
+            if (updateRoom.tenantID == 0)
+            {
+                columnEmpty["tenant_id"] = true;
+            }
+
+            if (updateRoom.hasRoomAccess == false)
+            {
+                columnEmpty["has_room_access"] = true;
+            }
+
+            if (updateRoom.fromDate == new DateTime(1,1,1))
+            {
+                columnEmpty["from_date"] = true;
+            }
+
+            if (updateRoom.toDate == new DateTime(1, 1, 1))
+            {
+                columnEmpty["to_date"] = true;
+            }
+
+            Dictionary<string, object> updateColumns = new Dictionary<string, object>
+            {
+                { "room_number", updateRoom.roomNumber },
+                { "tenant_id", updateRoom.tenantID },
+                { "has_room_access", updateRoom.hasRoomAccess },
+                { "from_date", updateRoom.fromDate },
+                { "to_date", updateRoom.toDate },
+            };
+
+            string updateStatement = UpdateCreator.CreateUpdateQuery("Room", updateColumns, "room_id");
+            if (updateStatement == "")
+            {
+                return DatabaseActionsResponses.FieldEmpty;
+            }
+
+            Console.WriteLine($"updateStatement: {updateStatement}");
+            try
+            {
+                using var cmd = new NpgsqlCommand(updateStatement, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("room_id", ID);
+
+                foreach (KeyValuePair<string, bool> entry in columnEmpty)
+                {
+                    switch (entry.Value)
+                    {
+                        case false:
+                            if (updateColumns[entry.Key].ToString().ToLower() == "true" || updateColumns[entry.Key].ToString().ToLower() == "false")
+                            {
+                               continue;
+
+                            } else
+                            {
+                                Console.WriteLine($"{entry.Key} - {updateColumns[entry.Key.ToLower()]}");
+                                cmd.Parameters.AddWithValue($"{entry.Key}", updateColumns[entry.Key]);
+                            }
+                            break;
+                    }
+                }
+
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"UPDATE TO ROOM_ID {ID} INTO ROOM TABLE");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not update room details of room ID {ID}");
+            }
 
             return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }

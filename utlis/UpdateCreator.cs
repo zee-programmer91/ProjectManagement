@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using ProjectManagement.Model;
-using System.Text;
+﻿using System.Text;
 
 namespace ProjectManagement.utlis
 {
@@ -8,6 +6,8 @@ namespace ProjectManagement.utlis
     {
         private const string emptyString = "";
         private const string zeroIndex = "0";
+        private static readonly DateTime defaultDateTime = new DateTime(1,1,1);
+        private const bool defaultAccess = false;
 
         /// <summary>
         /// Creates an SQL update query statement based on the values given
@@ -23,15 +23,32 @@ namespace ProjectManagement.utlis
             int sizeOfUpdateQueryBefore = updateQuery.Length;
             int emptyFields = 0;
 
+            Console.WriteLine($"columAndValues: {columAndValues["has_room_access"]}");
+
             foreach (var column in columAndValues)
             {
-                switch (column.Value as string == emptyString || column.Value.ToString() == zeroIndex)
+                switch (column.Value as string == emptyString || column.Value.ToString() == zeroIndex ||
+                    column.Value.ToString() == defaultDateTime.ToString() || column.Value.ToString() == defaultAccess.ToString().ToUpper())
                 {
                     case true:
                         emptyFields++;
                         break;
                     case false:
-                        updateQuery.Append($" SET {column.Key} = @{column.Key},");
+                        if (column.Value.ToString() == "True")
+                        {
+                            Console.WriteLine($" SET {column.Key} = CAST(1 AS bit),");
+                            updateQuery.Append($" SET {column.Key} = CAST(1 AS bit),");
+                        }
+                        else if (column.Value.ToString() == "False")
+                        {
+                            Console.WriteLine($" SET {column.Key} = CAST(0 AS bit),");
+                            updateQuery.Append($" SET {column.Key} = CAST(0 AS bit),");
+                        }
+                        else
+                        {
+                            Console.WriteLine($" SET {column.Key} = @{column.Key},");
+                            updateQuery.Append($" SET {column.Key} = @{column.Key},");
+                        }
                         break;
                 }
             }

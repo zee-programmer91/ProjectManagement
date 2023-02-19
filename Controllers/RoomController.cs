@@ -27,19 +27,21 @@ namespace ProjectManagement.Controllers
             {
                 roomNumber= roomNumber,
                 tenantID=tenantID,
-                fromDate=fromDate
+                fromDate=fromDate,
             };
             return new ObjectResult($"ENTRY RESULT: {QueryRoom.InsertEntry(room)}");
         }
 
         [HttpPut("UpdateRoom/{room_id}", Name = "UpdateRoom")]
-        public IActionResult UpdateRoom(int room_id, int roomNumber, int tenantID, DateTime fromDate)
+        public IActionResult UpdateRoom(int room_id, DateTime fromDate, DateTime toDate, int roomNumber = 0, int tenantID = 0, bool hasRoomAccess = false)
         {
             Room room = new Room()
             {
                 roomNumber = roomNumber,
                 tenantID = tenantID,
-                fromDate = fromDate
+                fromDate = fromDate,
+                toDate= toDate,
+                hasRoomAccess= hasRoomAccess
             };
             return new ObjectResult($"UPDATE RESULT: {QueryRoom.UpdateEntryByID(room_id, room)}");
         }
