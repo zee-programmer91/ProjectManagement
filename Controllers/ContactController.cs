@@ -63,7 +63,7 @@ namespace ProjectManagement.Controllers
         [HttpDelete("HardDeleteContact/{contact_id}", Name = "HardDeleteContact")]
         public IActionResult HardDeleteContact(int contact_id)
         {
-            return new ObjectResult(QueryContact.DeleteEntryByID(contact_id));
+            return new ObjectResult($"DELETE RESULT: {QueryContact.DeleteEntryByID(contact_id)}");
         }
     }
 }
