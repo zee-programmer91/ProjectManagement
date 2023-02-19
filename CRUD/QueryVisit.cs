@@ -4,6 +4,7 @@ using ProjectManagement.Database;
 using ProjectManagement.CRUD;
 using ProjectManagement.utlis;
 using Model;
+using ProjectManagement.Model;
 
 namespace ProjectManagement.Models
 {
@@ -13,13 +14,12 @@ namespace ProjectManagement.Models
 
         public static int GetVisitByID(int visit_id)
         {
-            databaseConnection.OpenConnection();
             int result = -1;
 
             try
             {
                 string commandText = $"SELECT * FROM VISIT WHERE visit_id = @visit_id;";
-                using NpgsqlCommand sqlCommand = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using NpgsqlCommand sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
 
                 sqlCommand.Parameters.AddWithValue("visit_id", visit_id);
                 using NpgsqlDataReader reader = sqlCommand.ExecuteReader();
@@ -28,7 +28,6 @@ namespace ProjectManagement.Models
                 {
                     Visit visit = DatabaseReaders.ReadVisit(reader);
                     Console.WriteLine($"visit: {visit}");
-                    databaseConnection.DisposeConnection();
                     result = 1;
                     return result;
                 }
@@ -40,20 +39,18 @@ namespace ProjectManagement.Models
                 return result;
             }
 
-            databaseConnection.DisposeConnection();
             return result;
         }
 
         public static int GetVisits()
         {
-            databaseConnection.OpenConnection();
             List<Visit> visits = new List<Visit>();
             int result = -1;
 
             try
             {
                 string commandText = $"SELECT * FROM VISIT;";
-                using var sqlCommand = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
 
                 using NpgsqlDataReader reader = sqlCommand.ExecuteReader();
                 while (reader.Read())
@@ -68,8 +65,6 @@ namespace ProjectManagement.Models
             {
                 Console.WriteLine($"ERROR - Could not get all visits");
             }
-
-            databaseConnection.DisposeConnection();
             return result;
         }
 
@@ -79,16 +74,27 @@ namespace ProjectManagement.Models
 
             try
             {
-                QueryPerson.AddPerson(name, surname, identityCode);
+                Person person = new Person()
+                {
+                    personName = name,
+                    personSurname = surname,
+                    identityCode = identityCode,
+                };
+                QueryPerson.InsertEntry(person);
 
                 int person_id = QueryPerson.GetPersonID(name, surname);
 
-                QueryContact.InsertEntry(person_id, new Contact());
+                Contact contact = new Contact()
+                {
+                    personID = person_id,
+                    cellphoneNumber = cellphone,
+                    email = email,
+                };
+                QueryContact.InsertEntry(contact);
 
-                databaseConnection.OpenConnection();
                 string commandText = $"INSERT INTO VISIT (person_id, tenant_id, date_of_visit) VALUES(@person_id,@tenant_id, @dateOfVisit);";
 
-                using var sqlCommand = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
                 sqlCommand.Parameters.AddWithValue("person_id", person_id);
                 sqlCommand.Parameters.AddWithValue("tenant_id", tenant_id);
                 sqlCommand.Parameters.AddWithValue("dateOfVisit", dateOfVisit);
@@ -101,39 +107,32 @@ namespace ProjectManagement.Models
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not add visit to the tenant with the following ID: {tenant_id}");
             }
-
-            databaseConnection.DisposeConnection();
             return result;
         }
 
         public static int UpdateVisit(int visit_id, DateTime dateOfVisit, DateTime dateLeftVisit)
         {
-            databaseConnection.OpenConnection();
             int result = 0;
   
             try
             {
                 string commandText = $@"{UpdateCreator.CreateVisitUpdateQuery(dateOfVisit, dateLeftVisit, visit_id)}";
 
-                using var sqlCommand = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
 
                 result = sqlCommand.ExecuteNonQuery();
                 Console.WriteLine($"UPDATED VISIT TABLE WHERE ID IS {visit_id}");
-                databaseConnection.DisposeConnection();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not update VISIT table with ID {visit_id}");
             }
-
-            databaseConnection.DisposeConnection();
             return result;
         }
 
         public static int UpdateDateLeftVisit(int visit_id, DateTime date)
         {
-            databaseConnection.OpenConnection();
             int result = 0;
 
             DateTime dateToday = DateTime.Today;
@@ -151,14 +150,13 @@ namespace ProjectManagement.Models
             {
                 string commandText = $@"UPDATE VISIT SET date_left_visit = @date WHERE visit_id = @visit_id;";
 
-                using (var sqlCommand = new NpgsqlCommand(commandText, databaseConnection.GetConnection()))
+                using (var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection()))
                 {
                     sqlCommand.Parameters.AddWithValue("date", date.Date);
                     sqlCommand.Parameters.AddWithValue("visit_id", visit_id);
 
                     result = sqlCommand.ExecuteNonQuery();
                     Console.WriteLine($"UPDATED the date of the visit with the ID of {visit_id} in VISIT table");
-                    databaseConnection.DisposeConnection();
                 }
             }
             catch (Exception e)
@@ -166,40 +164,29 @@ namespace ProjectManagement.Models
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not update VISIT table with id {visit_id}");
             }
-
-            databaseConnection.DisposeConnection();
             return result;
         }
 
         public static int SoftDeleteVisit(int visit_id)
         {
-            databaseConnection.OpenConnection();
             int result = 0;
             string commandText = $@"UPDATE VISIT SET deleted = CAST(0 AS BIT) WHERE visit_id = @visit_id;";
 
             try
             {
 
-                using var sqlCommand = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
                 sqlCommand.Parameters.AddWithValue("visit_id", visit_id);
 
                 result = sqlCommand.ExecuteNonQuery();
                 Console.WriteLine($"UPDATED VISIT DateFROM WITH ID {visit_id} IN VISIT TABLE");
-                databaseConnection.DisposeConnection();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine($"ERROR - Could not update CONTACT table with id {visit_id}");
             }
-
-            databaseConnection.DisposeConnection();
             return result;
-        }
-
-        public static void CloseOpenConnection()
-        {
-            databaseConnection.DisposeConnection();
         }
     }
 }

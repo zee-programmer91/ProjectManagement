@@ -13,7 +13,7 @@ namespace ProjectManagement.Controllers
         [HttpGet(Name = "GetAllContacts")]
         public IActionResult GetAllContacts()
         {
-            return new ObjectResult((List<Contact>)QueryContact.GetAll());
+            return new ObjectResult(QueryContact.GetAll());
         }
 
         [HttpGet("{contact_id}", Name = "GetContact")]
@@ -37,7 +37,7 @@ namespace ProjectManagement.Controllers
                         cellphoneNumber = cellphone,
                         email = email
                     };
-                    return new ObjectResult($"ENTRY RESULT: {QueryContact.InsertEntry(person_id, newContact)}");
+                    return new ObjectResult($"ENTRY RESULT: {QueryContact.InsertEntry(newContact)}");
                 case ValidationMessage.InvalidEmail:
                     return new ObjectResult($"ENTRY RESULT: {ValidationMessage.InvalidEmail}");
                 case ValidationMessage.InvalidPersonID:

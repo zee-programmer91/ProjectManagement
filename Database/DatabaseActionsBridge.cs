@@ -11,7 +11,8 @@ namespace ProjectManagement.Database
 
         public static object GetByID(int ID) => new();
         public static object GetAll() => new();
-        public static DatabaseActionsResponses InsertEntry(int ID, object newEntry) => DatabaseActionsResponses.Failed;
+        public static DatabaseActionsResponses InsertEntry(object newEntry) => DatabaseActionsResponses.Failed;
+
         public static DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry) => DatabaseActionsResponses.Failed;
         public static DatabaseActionsResponses DeleteEntryByID(int ID) => DatabaseActionsResponses.Failed;
         public static DatabaseActionsResponses DeleteAll() => DatabaseActionsResponses.Failed;

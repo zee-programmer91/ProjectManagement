@@ -11,43 +11,55 @@ namespace ProjectManagement.Controllers
         [HttpGet(Name = "GetAllPerson")]
         public IActionResult GetAllPeople()
         {
-            return new ObjectResult(QueryPerson.GetAllPersons());
+            return new ObjectResult(QueryPerson.GetAll());
         }
 
         [HttpGet("{person_id}", Name = "GetPerson")]
-        public IActionResult GetPerson(int id)
+        public IActionResult GetPerson(int person_id)
         {
-            return new ObjectResult($"Number of rows affected: {QueryPerson.GetPersonByID(id)}");
+            return new ObjectResult(QueryPerson.GetByID(person_id));
         }
 
         [HttpGet("GetPersonID", Name = "GetPersonID")]
         public IActionResult GetPersonID(string name = "", string surname = "")
         {
-            return new ObjectResult($"Number of rows affected: {QueryPerson.GetPersonID(name, surname)}");
+            return new ObjectResult($"SELECT RESULT: {QueryPerson.GetPersonID(name, surname)}");
         }
 
         [HttpPost("AddPerson", Name = "AddPerson")]
         public IActionResult AddPerson(string name = "", string surname = "", string identityCode = "")
         {
-            return new ObjectResult($"Number of rows affected: {QueryPerson.AddPerson(name, surname, identityCode)}");
+            Person person = new Person()
+            {
+                personName = name,
+                personSurname = surname,
+                identityCode = identityCode
+            };
+            return new ObjectResult($"INSERT RESULT: {QueryPerson.InsertEntry(person)}");
         }
 
         [HttpPut("UpdatePerson/{person_id}", Name = "UpdatePerson")]
-        public IActionResult UpdatePerson(int person_id, string name = "", string surname = "")
+        public IActionResult UpdatePerson(int person_id, string name = "", string surname = "", string identityCode = "")
         {
-            return new ObjectResult($"Number of rows affected: {QueryPerson.UpdatePerson(person_id, name, surname)}");
+            Person person = new Person()
+            {
+                personName = name,
+                personSurname = surname,
+                identityCode = identityCode
+            };
+            return new ObjectResult($"INSERT RESULT: {QueryPerson.UpdateEntryByID(person_id, person)}");
         }
 
         [HttpPut("SoftDeletePerson/{person_id}", Name = "SoftDeletePerson")]
         public IActionResult SoftDeletePerson(int person_id)
         {
-            return new ObjectResult($"Number of rows affected: {QueryPerson.SoftDeletingPerson(person_id)}");
+            return new ObjectResult($"DELETE RESULT: {QueryPerson.SoftDeleteEntryByID(person_id)}");
         }
 
         [HttpDelete("HardDeletePerson/{person_id}", Name = "HardDeletePerson")]
         public IActionResult HardDeletePerson(int person_id)
         {
-            return new ObjectResult($"Number of rows affected: {QueryPerson.HardDeletingPerson(person_id)}");
+            return new ObjectResult($"DELETE RESULT: {QueryPerson.DeleteEntryByID(person_id)}");
         }
     }
 }

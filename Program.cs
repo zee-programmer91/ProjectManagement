@@ -1,4 +1,9 @@
+using ProjectManagement.Database;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Open database connection
+DatabaseConnection.OpenConnection();
 
 // Add services to the container.
 
@@ -23,3 +28,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Close database connection
+DatabaseConnection.DisposeConnection();

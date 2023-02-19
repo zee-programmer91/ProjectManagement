@@ -17,7 +17,7 @@ namespace ProjectManagement.utlis
         {
             // Check if person with the id given exists
             Console.WriteLine($"email.Contains(\".com\"): {email.Contains(".com")}");
-            Person person = QueryPerson.GetPersonByID(person_id);
+            Person person = QueryPerson.GetByID(person_id);
             if (person.personName == "")
             {
                 return ValidationMessage.InvalidPersonID;

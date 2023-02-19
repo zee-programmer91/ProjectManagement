@@ -6,27 +6,25 @@ namespace ProjectManagement.Database
 {
     public class DatabaseConnection
     {
-        private NpgsqlConnection connection {get;}
-        private readonly string ConnectionString = SetConfiguration();
+        private static NpgsqlConnection connection;
+        private static NpgsqlConnection Connection {get;}
+        private static string ConnectionString = SetConfiguration();
 
-        public DatabaseConnection()
+        public static NpgsqlConnection GetConnection()
         {
-            connection = new NpgsqlConnection(ConnectionString);
-        }
-
-        public NpgsqlConnection GetConnection()
-        {
+            connection ??= new NpgsqlConnection();
             return connection;
         }
 
-        public void OpenConnection()
+        public static void OpenConnection()
         {
-            connection?.Open();
+            connection = new NpgsqlConnection(ConnectionString);
+            connection.Open();
         }
 
-        public void DisposeConnection()
+        public static void DisposeConnection()
         {
-            connection?.Close();
+            connection.Close();
         }
 
         public static string SetConfiguration()

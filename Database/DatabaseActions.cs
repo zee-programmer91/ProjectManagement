@@ -36,11 +36,10 @@ namespace ProjectManagement.Database
         /// <summary>
         /// Inserts an entry into the database table
         /// </summary>
-        /// <param name="ID"></param>
         /// <param name="newEntry"></param>
         /// <returns>Returns a DatabaseActionsResponses response</returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static DatabaseActionsResponses InsertEntry(int ID, object newEntry)
+        public static DatabaseActionsResponses InsertEntry(object newEntry)
         {
             throw new NotImplementedException();
         }

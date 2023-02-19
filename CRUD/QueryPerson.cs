@@ -2,24 +2,24 @@
 using ProjectManagement.Model;
 using ProjectManagement.Database;
 using ProjectManagement.utlis;
+using static ProjectManagement.Database.DatabaseActions;
+using Model;
 
 namespace ProjectManagement.CRUD
 {
-    public class QueryPerson
+    public class QueryPerson : DatabaseActionsBridge
     {
-        private static readonly DatabaseConnection databaseConnection = new DatabaseConnection();
         private static List<Person> persons;
 
         public static int GetPersonID(string name, string surname)
         {
-            databaseConnection.OpenConnection();
             persons = new List<Person>();
             int personID = 0;
 
             try
             {
                 string commandText = $"SELECT PERSON.person_id FROM PERSON WHERE person_name = @name and person_surname = @surname;";
-                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
                 cmd.Parameters.AddWithValue("name", name);
                 cmd.Parameters.AddWithValue("surname", surname);
 
@@ -31,26 +31,23 @@ namespace ProjectManagement.CRUD
                 Console.WriteLine($"ERROR - Could not get Person with Name '{name}' and Surname '{surname}'");
             }
 
-            databaseConnection.DisposeConnection();
             return personID;
         }
 
-        public static Person GetPersonByID(int id)
+        public static new Person GetByID(int id)
         {
-            databaseConnection.OpenConnection();
             persons = new List<Person>();
 
             try
             {
                 string commandText = $"SELECT * FROM PERSON WHERE PERSON_ID = @person_id";
-                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
                 cmd.Parameters.AddWithValue("person_id", id);
 
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     Person person = DatabaseReaders.ReadPerson(reader);
-                    databaseConnection.DisposeConnection();
                     persons.Add(person);
                     return person;
                 }
@@ -59,56 +56,45 @@ namespace ProjectManagement.CRUD
             {
                 Console.WriteLine($"ERROR - Could not get Person with ID '{id}'");
             }
-
-            databaseConnection.DisposeConnection();
             return new Person();
         }
 
-        public static int GetAllPersons()
+        public static new List<Person> GetAll()
         {
-            databaseConnection.OpenConnection();
             persons = new List<Person>();
-            int result = 0;
 
             try
             {
                 string commandText = $"SELECT * FROM PERSON WHERE DELETED = CAST(0 as bit);";
-                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
+                using NpgsqlCommand cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     Person person = DatabaseReaders.ReadPerson(reader);
                     persons.Add(person);
-                    result++;
                 }
+                Console.WriteLine($"Selected all persons from the PERSON Table");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine($"ERROR - Could not all person from the Person table");
+                Console.WriteLine($"ERROR - Could not all person from the Person table: {e.StackTrace}");
             }
-
-            databaseConnection.DisposeConnection();
-            return result;
+            return persons;
         }
 
-        public static int AddPerson(string name, string surname, string identityCode)
+        public static new DatabaseActionsResponses InsertEntry(object newEntry)
         {
-            databaseConnection.OpenConnection();
             int result = 0;
-
-            if (name == "" && surname == "")
-            {
-                return result;
-            }
+            Person newPerson = (Person)newEntry;
 
             try
             {
                 string commandText = $"INSERT INTO PERSON (person_name, person_surname, identity_code) VALUES(@person_name,@person_surname,@identity_code);";
 
-                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
-                cmd.Parameters.AddWithValue("person_name", name);
-                cmd.Parameters.AddWithValue("person_surname", surname);
-                cmd.Parameters.AddWithValue("identity_code", identityCode);
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_name", newPerson.PersonName);
+                cmd.Parameters.AddWithValue("person_surname", newPerson.PersonSurname);
+                cmd.Parameters.AddWithValue("identity_code", newPerson.PersonId);
                 result = cmd.ExecuteNonQuery();
 
                 Console.WriteLine($"Saved person into the Person table");
@@ -118,127 +104,109 @@ namespace ProjectManagement.CRUD
                 Console.WriteLine($"ERROR - Could not save person to the Person table");
             }
 
-            databaseConnection.DisposeConnection();
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int HardDeletingPerson(int person_id)
+        public static new DatabaseActionsResponses DeleteEntryByID(int ID)
         {
-            databaseConnection.OpenConnection();
             int result = 0;
 
             string commandText = $"DELETE FROM PERSON WHERE ID = @person_id)";
 
             try
             {
-                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
-                cmd.Parameters.AddWithValue("person_id", person_id);
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", ID);
 
                 result = cmd.ExecuteNonQuery();
 
-                Console.WriteLine($"DELETED PERSON WITH THE ID OF {person_id} FROM PERSON TABLE");
+                Console.WriteLine($"DELETED PERSON WITH THE ID OF {ID} FROM PERSON TABLE");
             } catch (Exception)
             {
-                Console.WriteLine($"ERROR - Could not delete person with ID {person_id}");
+                Console.WriteLine($"ERROR - Could not delete person with ID {ID}");
             }
-            databaseConnection.DisposeConnection();
-            return  result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed; ;
         }
 
-        public static int SoftDeletingPerson(int person_id)
+        public static new DatabaseActionsResponses SoftDeleteEntryByID(int ID)
         {
-            databaseConnection.OpenConnection();
             int result = 0;
 
             string commandText = $"UPDATE PERSON SET DELETED = CAST(1 AS BIT);";
 
             try
             {
-                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
-                cmd.Parameters.AddWithValue("person_id", person_id);
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", ID);
 
                 result = cmd.ExecuteNonQuery();
 
-                Console.WriteLine($"SOTF DELETED PERSON WITH THE ID OF {person_id} FROM PERSON TABLE");
+                Console.WriteLine($"SOTF DELETED PERSON WITH THE ID OF {ID} FROM PERSON TABLE");
             }
             catch (Exception)
             {
-                Console.WriteLine($"ERROR - Could not delete person with ID {person_id}");
+                Console.WriteLine($"ERROR - Could not delete person with ID {ID}");
             }
-            databaseConnection.DisposeConnection();
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int UpdatePerson(int person_id, string person_name, string person_surname)
+        public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             int result = 0;
             List<Person> persons = new List<Person>();
-            Person person = new Person();
-            person.personId = person_id;
-            person.personName = person_name;
-            person.personSurname = person_surname;
+            //Person person = new Person();
+            //person.personId = person_id;
+            //person.personName = person_name;
+            //person.personSurname = person_surname;
 
-            string updateQuery = UpdateCreator.CreatePersonUpdateQuery(person);
-            Console.WriteLine("query: " + updateQuery);
+            //string updateQuery = UpdateCreator.CreatePersonUpdateQuery(person);
+            //Console.WriteLine("query: " + updateQuery);
             
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int SoftDeletePerson(int person_id)
-        {
-            int result = 0;
+        //public static int SoftDeletePerson(int person_id)
+        //{
+        //    int result = 0;
 
-            databaseConnection.OpenConnection();
+        //    try
+        //    {
+        //        string commandText = $"UPDATE PERSON SET deleted = CAST(1 AS bit) WHERE person_id = @person_id;";
 
-            try
-            {
-                string commandText = $"UPDATE PERSON SET deleted = CAST(1 AS bit) WHERE person_id = @person_id;";
+        //        using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+        //        cmd.Parameters.AddWithValue("person_id", person_id);
 
-                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
-                cmd.Parameters.AddWithValue("person_id", person_id);
+        //        result = cmd.ExecuteNonQuery();
+        //        Console.WriteLine($"Soft Deleted Person WITH ID {person_id} IN PERSON TABLE");
 
-                result = cmd.ExecuteNonQuery();
-                Console.WriteLine($"Soft Deleted Person WITH ID {person_id} IN PERSON TABLE");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
+        //    }
+        //    return result;
+        //}
 
-                databaseConnection.DisposeConnection();
-            }
-            catch (Exception)
-            {
-                Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
-            }
-            databaseConnection.DisposeConnection();
-            return result;
-        }
+        //public static int HardDeletePerson(int person_id)
+        //{
+        //    int result = 0;
 
-        public static int HardDeletePerson(int person_id)
-        {
-            int result = 0;
+        //    try
+        //    {
+        //        string commandText = $"DELETE FROM PERSON WHERE person_id = @person_id;";
 
-            databaseConnection.OpenConnection();
+        //        using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+        //        cmd.Parameters.AddWithValue("person_id", person_id);
 
-            try
-            {
-                string commandText = $"DELETE FROM PERSON WHERE person_id = @person_id;";
+        //        result = cmd.ExecuteNonQuery();
+        //        Console.WriteLine($"Hard Deleted Person WITH ID {person_id} IN PERSON TABLE\nRows affected: {result}");
 
-                using var cmd = new NpgsqlCommand(commandText, databaseConnection.GetConnection());
-                cmd.Parameters.AddWithValue("person_id", person_id);
-
-                result = cmd.ExecuteNonQuery();
-                Console.WriteLine($"Hard Deleted Person WITH ID {person_id} IN PERSON TABLE\nRows affected: {result}");
-
-                databaseConnection.DisposeConnection();
-            }
-            catch (Exception)
-            {
-                Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
-            }
-            databaseConnection.DisposeConnection();
-            return result;
-        }
-
-        public static void CloseOpenConnection()
-        {
-            databaseConnection.DisposeConnection();
-        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
+        //    }
+        //    return result;
+        //}
     }
 }
