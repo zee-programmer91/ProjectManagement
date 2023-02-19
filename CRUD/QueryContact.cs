@@ -2,9 +2,8 @@
 using Model;
 using Npgsql;
 using ProjectManagement.Database;
-using ProjectManagement.Models;
 using ProjectManagement.utlis;
-using static ProjectManagement.Models.DatabaseActions;
+using static ProjectManagement.Database.DatabaseActions;
 
 namespace ProjectManagement.CRUD
 {

@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Model;
 using ProjectManagement.CRUD;
-using ProjectManagement.Model;
+using ProjectManagement.utlis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ProjectManagement.Controllers
 {
@@ -22,9 +23,29 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpPost("AddContact/{person_id}", Name = "AddContact")]
+        [SuppressMessage("Style", "IDE0090:Use 'new(...)'", Justification = "<Pending>")]
         public IActionResult AddContact(int person_id, string cellphone, string email)
         {
-            return new ObjectResult(QueryContact.InsertEntry(person_id, new Contact()));
+            ValidationMessage message = Validator.ContactInputValidated(person_id, cellphone, email);
+            Console.WriteLine($"response: {message}");
+            switch (message)
+            {
+                case ValidationMessage.Validated:
+                    Contact newContact = new Contact()
+                    {
+                        personID = person_id,
+                        cellphoneNumber = cellphone,
+                        email = email
+                    };
+                    return new ObjectResult($"ENTRY RESULT: {QueryContact.InsertEntry(person_id, newContact)}");
+                case ValidationMessage.InvalidEmail:
+                    return new ObjectResult($"ENTRY RESULT: {ValidationMessage.InvalidEmail}");
+                case ValidationMessage.InvalidPersonID:
+                    return new ObjectResult($"ENTRY RESULT: {ValidationMessage.InvalidPersonID}");
+                case ValidationMessage.InvalidCellphoneNumber:
+                    return new ObjectResult($"ENTRY RESULT: {ValidationMessage.InvalidCellphoneNumber}");
+            }
+            return new ObjectResult($"ENTRY RESULT: {"Invalid Input"}");
         }
 
         [HttpPut("UpdateContact/{contact_id}", Name = "UpdateContact")]

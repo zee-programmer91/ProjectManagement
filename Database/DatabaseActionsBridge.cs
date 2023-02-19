@@ -1,6 +1,6 @@
-﻿using static ProjectManagement.Models.DatabaseActions;
+﻿using static ProjectManagement.Database.DatabaseActions;
 
-namespace ProjectManagement.Models
+namespace ProjectManagement.Database
 {
     public abstract class DatabaseActionsBridge : DatabaseActions
     {

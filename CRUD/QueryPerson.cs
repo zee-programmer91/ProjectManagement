@@ -35,11 +35,10 @@ namespace ProjectManagement.CRUD
             return personID;
         }
 
-        public static int GetPersonByID(int id)
+        public static Person GetPersonByID(int id)
         {
             databaseConnection.OpenConnection();
             persons = new List<Person>();
-            int result = 0;
 
             try
             {
@@ -53,8 +52,7 @@ namespace ProjectManagement.CRUD
                     Person person = DatabaseReaders.ReadPerson(reader);
                     databaseConnection.DisposeConnection();
                     persons.Add(person);
-                    result = 1;
-                    return result;
+                    return person;
                 }
             }
             catch (Exception)
@@ -63,7 +61,7 @@ namespace ProjectManagement.CRUD
             }
 
             databaseConnection.DisposeConnection();
-            return result;
+            return new Person();
         }
 
         public static int GetAllPersons()

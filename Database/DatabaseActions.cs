@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ProjectManagement.Models
+namespace ProjectManagement.Database
 {
-    
+
     public interface DatabaseActions
 
     {
