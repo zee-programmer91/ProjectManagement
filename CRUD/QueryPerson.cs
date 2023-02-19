@@ -94,7 +94,7 @@ namespace ProjectManagement.CRUD
                 using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
                 cmd.Parameters.AddWithValue("person_name", newPerson.PersonName);
                 cmd.Parameters.AddWithValue("person_surname", newPerson.PersonSurname);
-                cmd.Parameters.AddWithValue("identity_code", newPerson.PersonId);
+                cmd.Parameters.AddWithValue("identity_code", newPerson.identityCode);
                 result = cmd.ExecuteNonQuery();
 
                 Console.WriteLine($"Saved person into the Person table");

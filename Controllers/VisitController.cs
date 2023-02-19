@@ -43,6 +43,7 @@ namespace ProjectManagement.Controllers
             Visit visit = new Visit()
             {
                 dateOfVisit=dateOfVisit,
+                tenantID=tenant_id, 
             };
             ArrayList vistList = new ArrayList
             {
