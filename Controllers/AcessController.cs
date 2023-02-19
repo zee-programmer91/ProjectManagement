@@ -20,7 +20,7 @@ namespace ProjectManagement.Controllers
             return new ObjectResult(QueryAccess.GetByID(access_id));
         }
 
-        [HttpPut("AddAccessType", Name = "AddAccessType")]
+        [HttpPost("AddAccessType", Name = "AddAccessType")]
         public IActionResult AddAccessType(string accessName)
         {
             Access access = new Access()
@@ -28,6 +28,28 @@ namespace ProjectManagement.Controllers
                 AccessName = accessName
             };
             return new ObjectResult($"INSERT RESULT: {QueryAccess.InsertEntry(access)}");
+        }
+
+        [HttpPut("SoftDeleteAccess/{access_id}", Name = "SoftDeleteAccess")]
+        public IActionResult SoftDeleteAccess(int access_id)
+        {
+            return new ObjectResult($"DELETE RESULT: {QueryAccess.SoftDeleteEntryByID(access_id)}");
+        }
+
+        [HttpDelete("DeleteAccess/{access_id}", Name = "DeleteAccess")]
+        public IActionResult DeleteAccess(int access_id)
+        {
+            return new ObjectResult($"DELETE RESULT: {QueryAccess.DeleteEntryByID(access_id)}");
+        }
+
+        [HttpPut("UpdateAccess/{access_id}", Name = "UpdateAccess")]
+        public IActionResult DeleteAccess(int access_id, string accessName)
+        {
+            Access access = new Access()
+            {
+                AccessName = accessName
+            };
+            return new ObjectResult($"UPDATE RESULT: {QueryAccess.UpdateEntryByID(access_id, access)}");
         }
     }
 }
