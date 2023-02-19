@@ -138,7 +138,6 @@ namespace ProjectManagement.CRUD
         public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             int result = 0;
-            int emptyColumns = 0;
 
             Contact updateContact = (Contact)updateEntry;
 
@@ -165,8 +164,6 @@ namespace ProjectManagement.CRUD
             };
 
             string updateStatement = UpdateCreator.CreateUpdateQuery("Contact", updateColumns, "contact_id");
-
-            Console.WriteLine($"updateStatement: {updateStatement}");
 
             try
             {

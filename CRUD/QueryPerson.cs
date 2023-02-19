@@ -153,60 +153,70 @@ namespace ProjectManagement.CRUD
         public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             int result = 0;
-            List<Person> persons = new List<Person>();
-            //Person person = new Person();
-            //person.personId = person_id;
-            //person.personName = person_name;
-            //person.personSurname = person_surname;
+            Person updatePerson = (Person)updateEntry;
 
-            //string updateQuery = UpdateCreator.CreatePersonUpdateQuery(person);
-            //Console.WriteLine("query: " + updateQuery);
-            
+            Dictionary<string, bool> columnStatus = new Dictionary<string, bool>
+            {
+                { "person_name", false },
+                { "person_surname", false },
+                { "identity_code", false },
+            };
+
+            if (updatePerson.personName == "")
+            {
+                columnStatus["person_name"] = true;
+            }
+
+            if (updatePerson.personSurname == "")
+            {
+                columnStatus["person_surname"] = true;
+            }
+
+            if (updatePerson.identityCode == "")
+            {
+                columnStatus["identity_code"] = true;
+            }
+
+            Dictionary<string, object> updateColumns = new Dictionary<string, object>
+            {
+                { "person_name", updatePerson.personName },
+                { "person_surname", updatePerson.personSurname },
+                { "identity_code", updatePerson.identityCode }
+            };
+
+            string updateStatement = UpdateCreator.CreateUpdateQuery("Person", updateColumns, "person_id");
+            if (updateStatement == "")
+            {
+                return DatabaseActionsResponses.FieldEmpty;
+            }
+
+            Console.WriteLine($"updateStatement: {updateStatement}");
+            try
+            {
+                using var cmd = new NpgsqlCommand(updateStatement, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_id", ID);
+
+                foreach (KeyValuePair<string, bool> entry in columnStatus)
+                {
+                    switch (entry.Value)
+                    {
+                        case false:
+                            Console.WriteLine($"{entry.Key} - {updateColumns[entry.Key]}");
+                            cmd.Parameters.AddWithValue($"{entry.Key}", updateColumns[entry.Key]);
+                            break;
+                    }
+                }
+
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"UPDATE TO CONTACT_ID {ID} INTO CONTACT TABLE");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"ERROR - Could not update contact details of contact ID {ID}");
+            }
+
             return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
-
-        //public static int SoftDeletePerson(int person_id)
-        //{
-        //    int result = 0;
-
-        //    try
-        //    {
-        //        string commandText = $"UPDATE PERSON SET deleted = CAST(1 AS bit) WHERE person_id = @person_id;";
-
-        //        using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-        //        cmd.Parameters.AddWithValue("person_id", person_id);
-
-        //        result = cmd.ExecuteNonQuery();
-        //        Console.WriteLine($"Soft Deleted Person WITH ID {person_id} IN PERSON TABLE");
-
-        //    }
-        //    catch (Exception)
-        //    {
-        //        Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
-        //    }
-        //    return result;
-        //}
-
-        //public static int HardDeletePerson(int person_id)
-        //{
-        //    int result = 0;
-
-        //    try
-        //    {
-        //        string commandText = $"DELETE FROM PERSON WHERE person_id = @person_id;";
-
-        //        using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-        //        cmd.Parameters.AddWithValue("person_id", person_id);
-
-        //        result = cmd.ExecuteNonQuery();
-        //        Console.WriteLine($"Hard Deleted Person WITH ID {person_id} IN PERSON TABLE\nRows affected: {result}");
-
-        //    }
-        //    catch (Exception)
-        //    {
-        //        Console.WriteLine($"ERROR - Person with ID {person_id} does not exist");
-        //    }
-        //    return result;
-        //}
     }
 }
