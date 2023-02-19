@@ -43,7 +43,7 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpPut("UpdateAccess/{access_id}", Name = "UpdateAccess")]
-        public IActionResult DeleteAccess(int access_id, string accessName)
+        public IActionResult UpdateAccess(int access_id, string accessName="")
         {
             Access access = new Access()
             {

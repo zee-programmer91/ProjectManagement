@@ -3,6 +3,7 @@ using Npgsql;
 using ProjectManagement.Database;
 using ProjectManagement.Models;
 using ProjectManagement.utlis;
+using System.Collections.Generic;
 using static ProjectManagement.Database.DatabaseActions;
 
 namespace ProjectManagement.CRUD
@@ -87,7 +88,32 @@ namespace ProjectManagement.CRUD
 
         public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
-            return DatabaseActionsResponses.Success;
+            int result = 0;
+            Access updateAccess = (Access)updateEntry;
+
+            Dictionary<string, object> keyValuePairs = new Dictionary<string, object>
+            {
+                { "access_type_name", updateAccess.accessName }
+            };
+
+            string updateStatement = UpdateCreator.CreateUpdateQuery("Access_Type", keyValuePairs, "access_type_id");
+
+            Console.WriteLine($"updateStatement: {updateStatement}");
+
+           if (updateStatement == "")
+            {
+                return DatabaseActionsResponses.FieldEmpty;
+            }
+
+            using var cmd = new NpgsqlCommand(updateStatement, DatabaseConnection.GetConnection());
+
+            cmd.Parameters.AddWithValue("access_type_id", ID);
+            cmd.Parameters.AddWithValue("access_type_name", updateAccess.accessName);
+
+            result = cmd.ExecuteNonQuery();
+            Console.WriteLine($"Updated {result} row(s) in ACCESS_TYPE Table");
+
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed; ;
         }
 
         public static new DatabaseActionsResponses SoftDeleteEntryByID(int ID)

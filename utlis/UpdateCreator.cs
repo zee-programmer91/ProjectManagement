@@ -6,64 +6,46 @@ namespace ProjectManagement.utlis
 {
     public static class UpdateCreator
     {
-        public static string CreatePersonUpdateQuery(Person person)
+        private const string emptyString = "";
+
+        /// <summary>
+        /// Creates an SQL update query statement based on the values given
+        /// </summary>
+        /// <param name="tableName">The name of the table in the database</param>
+        /// <param name="columAndValues">Column names and their values</param>
+        /// <param name="whereColumn">The name of the column you want to update the entry with</param>
+        /// <returns>An SQL executable string</returns>
+        public static string CreateUpdateQuery(string tableName, Dictionary<string, object> columAndValues, string whereColumn)
         {
-            string updateQuery = "UPDATE PERSON ";
+            StringBuilder updateQuery = new StringBuilder();
+            updateQuery.Append($"UPDATE {tableName.ToUpper()}");
+            int sizeOfUpdateQueryBefore = updateQuery.Length;
+            int emptyFields = 0;
 
-            if (person.PersonName == "" && person.PersonSurname == "")
+            foreach (var column in columAndValues)
             {
-                return "";
+                switch (column.Value == emptyString)
+                {
+                    case true:
+                        emptyFields++;
+                        break;
+                    case false:
+                        updateQuery.Append($" SET {column.Key} = @{column.Key},");
+                        break;
+                }
             }
 
-            if (person.PersonName != "")
+            if (updateQuery.Length == sizeOfUpdateQueryBefore)
             {
-                updateQuery += $"SET person_name = {person.PersonName}";
-            }
-            if (person.PersonSurname != "" && person.PersonName != "")
-            {
-                updateQuery += $", person_surname = {person.personSurname}";
-            } else
-            {
-                updateQuery += $"SET person_surname = {person.personSurname}";
+                return emptyString;
             }
 
-            updateQuery += $" WHERE person_id = {person.PersonId}";
-            return updateQuery;
-        }
+            int lastIndex = updateQuery.Length - 1;
+            int legnthToRemove = 1;
+            updateQuery.Remove(lastIndex, legnthToRemove);
+            updateQuery.Append($" WHERE {whereColumn} = @{whereColumn}");
 
-        public static string CreateVisitUpdateQuery(DateTime dateOfVisit, DateTime dateLeftVisit, int visit_id)
-        {
-            const string dateTimeDefaultDate = "0001/01/01 00:00:00";
-            string defaultReturnValue = "";
-
-            //  All possible update queries to the VISIT table
-            string updateBoth = $"UPDATE VISIT SET DATE_OF_VISIT = {dateOfVisit.Date}, " +
-                $"SET DATE_LEFT_VISIT = {dateLeftVisit.Date} WHERE VISIT_ID = {visit_id};";
-
-            string updateDateOfVisit = $"UPDATE VISIT SET DATE_OF_VISIT = {dateOfVisit.Date} WHERE VISIT_ID = {visit_id};";
-            string updateDateLeftVisit = $"UPDATE VISIT SET DATE_LEFT_VISIT = {dateLeftVisit.Date} WHERE VISIT_ID = {visit_id};";
-
-            // First check if both the years match the default year
-            bool dateOfVisitMatches = dateOfVisit.ToString() == dateTimeDefaultDate;
-            bool dateLeftVisitMatches = dateLeftVisit.ToString() == dateTimeDefaultDate;
-
-            //  Now match the results to see what string to return
-            if (!dateOfVisitMatches && !dateLeftVisitMatches) // Both A and B don't match the default year
-            {
-                return updateBoth;
-            }
-            
-            else if (!dateOfVisitMatches && dateLeftVisitMatches) // A doesn't match but B matches
-            {
-                return updateDateOfVisit;
-            }
-            
-            else if (dateOfVisitMatches && !dateLeftVisitMatches) // A matches but B doesn't match
-            {
-                return updateDateLeftVisit;
-            }
-
-            return defaultReturnValue; // both of them match
+            return updateQuery.ToString();
         }
     }
 }
