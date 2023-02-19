@@ -6,8 +6,9 @@
         public int roomNumber = 0;
         public int tenantID = 0;
         public bool hasRoomAccess = false;
-        public DateOnly fromDate = new();
-        public DateOnly toDate = new();
+        public DateTime fromDate = new();
+        public DateTime toDate = new();
+        public bool deleted = false;
 
         public int RoomID
         {
@@ -29,15 +30,21 @@
             get { return hasRoomAccess; }
             set { hasRoomAccess = value; }
         }
-        public DateOnly FromDate
+        public DateTime FromDate
         {
             get { return fromDate; }
             set { fromDate = value; }
         }
-        public DateOnly ToDate
+        public DateTime ToDate
         {
             get { return toDate; }
             set { toDate = value; }
+        }
+
+        public bool Deleted
+        {
+            get { return deleted; }
+            set { deleted = value; }
         }
 
         public Room() { }

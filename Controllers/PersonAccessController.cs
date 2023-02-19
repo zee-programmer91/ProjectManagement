@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.CRUD;
+using ProjectManagement.Model;
 using ProjectManagement.Models;
 
 namespace ProjectManagement.Controllers
@@ -29,6 +30,17 @@ namespace ProjectManagement.Controllers
                 AccessTypeID= accessTypeID
             };
             return new ObjectResult($"ENTRY RESULT: {QueryPersonAccess.InsertEntry(personAccess)}");
+        }
+
+        [HttpPut("UpdatePersonAccess/{person_access_id}", Name = "UpdatePersonAccess")]
+        public IActionResult UpdatePersonAccess(int person_access_id, int personID, int accessTypeID)
+        {
+            PersonAccess personAccess = new PersonAccess()
+            {
+                personID = personID,
+                AccessTypeID = accessTypeID
+            };
+            return new ObjectResult($"UPDATE RESULT: {QueryPersonAccess.UpdateEntryByID(person_access_id, personAccess)}");
         }
 
         [HttpDelete("DeletePersonAccess/{person_access_id}", Name = "DeletePersonAccess")]

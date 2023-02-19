@@ -118,5 +118,35 @@ namespace ProjectManagement.utlis
 
             return personAccess;
         }
+
+        public static Room ReadRoom(NpgsqlDataReader reader)
+        {
+
+            int id = (int)reader["room_id"];
+
+            int roomNumber = (int)reader["room_number"];
+
+            int tenantID = (int)reader["tenant_id"];
+
+            bool hasRoomAccess = (bool)reader["has_room_access"];
+
+            DateTime fromDate = (DateTime)reader["from_date"];
+            DateTime toDate = (DateTime)reader["to_date"];
+
+            bool deleted = (bool)reader["deleted"];
+
+            Room room = new()
+            {
+                roomID= id,
+                roomNumber= roomNumber,
+                tenantID= tenantID,
+                hasRoomAccess= hasRoomAccess,
+                fromDate= fromDate,
+                toDate= toDate,
+                deleted= deleted
+            };
+
+            return room;
+        }
     }
 }
