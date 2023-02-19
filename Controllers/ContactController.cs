@@ -49,9 +49,14 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpPut("UpdateContact/{contact_id}", Name = "UpdateContact")]
-        public IActionResult UpdateContact(int contact_id, string cellphoneNumber, string email)
+        public IActionResult UpdateContact(int contact_id, string cellphoneNumber = "", string email = "")
         {
-            return new ObjectResult(QueryContact.UpdateEntryByID(contact_id, new Contact()));
+            Contact contact = new Contact()
+            {
+                cellphoneNumber= cellphoneNumber,
+                email= email
+            };
+            return new ObjectResult($"UPDATE RESULT: {QueryContact.UpdateEntryByID(contact_id, contact)}");
         }
 
         [HttpPut("SoftDeleteContact/{contact_id}", Name = "SoftDeleteContact")]

@@ -1,5 +1,4 @@
-﻿using LiveNiceApp;
-using Model;
+﻿using Model;
 using Npgsql;
 using ProjectManagement.Database;
 using ProjectManagement.utlis;
@@ -139,50 +138,58 @@ namespace ProjectManagement.CRUD
         public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             int result = 0;
-            Contact newContact = (Contact)updateEntry;
+            int emptyColumns = 0;
+
+            Contact updateContact = (Contact)updateEntry;
+
+            Dictionary<string, bool> columnStatus = new Dictionary<string, bool>
+            {
+                { "cellphone_number", false },
+                { "email", false },
+            };
+
+            if (updateContact.cellphoneNumber == "")
+            {
+                columnStatus["cellphone_number"] = true;
+            }
+
+            if (updateContact.email == "")
+            {
+                columnStatus["email"] = true;
+            }
+
+            Dictionary<string, object> updateColumns = new Dictionary<string, object>
+            {
+                { "email", updateContact.email },
+                { "cellphone_number", updateContact.cellphoneNumber }
+            };
+
+            string updateStatement = UpdateCreator.CreateUpdateQuery("Contact", updateColumns, "contact_id");
+
+            Console.WriteLine($"updateStatement: {updateStatement}");
 
             try
             {
-                string commandText;
+                using var cmd = new NpgsqlCommand(updateStatement, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("contact_id", ID);
 
-                if (newContact.cellphoneNumber == "" && newContact.email == "")
+                foreach (KeyValuePair<string, bool> entry in columnStatus)
                 {
-                    return DatabaseActionsResponses.FieldEmpty;
-                }
-                else if (newContact.cellphoneNumber != "" && newContact.email == "")
-                {
-                    commandText = $"UPDATE CONTACT SET CELLPHONE_NUMBER = @cellphoneNumber WHERE contact_id = @id;";
-                    using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-
-                    cmd.Parameters.AddWithValue("cellphoneNumber", newContact.cellphoneNumber);
-                    cmd.Parameters.AddWithValue("id", ID);
-                    result = cmd.ExecuteNonQuery();
-                }
-                else if (newContact.cellphoneNumber == "" && newContact.email != "")
-                {
-                    commandText = $"UPDATE CONTACT SET EMAIL = @email WHERE contact_id = @id;";
-                    using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-
-                    cmd.Parameters.AddWithValue("email", newContact.email);
-                    cmd.Parameters.AddWithValue("id", ID);
-                    result = cmd.ExecuteNonQuery();
-                }
-                else if (newContact.cellphoneNumber != "" && newContact.email != "")
-                {
-                    commandText = $"UPDATE CONTACT SET EMAIL = @email, SET CELLPHONE_NUMBER = @cellphoneNumber WHERE contact_id = @id;";
-                    using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-
-                    cmd.Parameters.AddWithValue("email", newContact.email);
-                    cmd.Parameters.AddWithValue("cellphoneNumber", newContact.cellphoneNumber);
-                    cmd.Parameters.AddWithValue("id", ID);
-                    result = cmd.ExecuteNonQuery();
+                    switch (entry.Value)
+                    {
+                        case false:
+                            Console.WriteLine($"{entry.Key} - {updateColumns[entry.Key]}");
+                            cmd.Parameters.AddWithValue($"{entry.Key}", updateColumns[entry.Key]);
+                            break;
+                    }
                 }
 
-                Console.WriteLine($"UPDATED CONTACT EMAIL WITH ID {ID} IN CONTACT TABLE");
-            }
-            catch (Exception)
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"UPDATE TO CONTACT_ID {ID} INTO CONTACT TABLE");
+            } catch(Exception e)
             {
-                Console.WriteLine($"ERROR - Could not update CONTACT table with id {ID}");
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"ERROR - Could not update contact details of contact ID {ID}");
             }
 
             return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
