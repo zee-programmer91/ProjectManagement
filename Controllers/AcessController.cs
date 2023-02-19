@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.CRUD;
+using ProjectManagement.Models;
 
 namespace ProjectManagement.Controllers
 {
@@ -9,19 +11,23 @@ namespace ProjectManagement.Controllers
         [HttpGet(Name = "GetAccessTypes")]
         public IActionResult GetAccessTypes()
         {
-            return View();
+            return new ObjectResult(QueryAccess.GetAll());
         }
 
         [HttpGet("GetAccessType/{access_id}", Name = "GetAccessType")]
         public IActionResult GetAccessType(int access_id)
         {
-            return View();
+            return new ObjectResult(QueryAccess.GetByID(access_id));
         }
 
         [HttpPut("AddAccessType", Name = "AddAccessType")]
-        public IActionResult AddAccessType(int access_id)
+        public IActionResult AddAccessType(string accessName)
         {
-            return View();
+            Access access = new Access()
+            {
+                AccessName = accessName
+            };
+            return new ObjectResult($"INSERT RESULT: {QueryAccess.InsertEntry(access)}");
         }
     }
 }

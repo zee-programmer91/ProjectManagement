@@ -2,6 +2,7 @@
 using Model;
 using Npgsql;
 using ProjectManagement.Model;
+using ProjectManagement.Models;
 
 namespace ProjectManagement.utlis
 {
@@ -54,6 +55,24 @@ namespace ProjectManagement.utlis
             };
 
             return person;
+        }
+
+        public static Access ReadAccess(NpgsqlDataReader reader)
+        {
+            int id = (int)reader["access_type_id"];
+
+            string? access_type_name = reader["access_type_name"] as string;
+
+            bool deleted = (bool)reader["deleted"];
+
+            Access access = new()
+            {
+                accessID = id,
+                accessName = access_type_name,
+                deleted = deleted
+            };
+
+            return access;
         }
 
         public static Visit ReadVisit(NpgsqlDataReader reader)
