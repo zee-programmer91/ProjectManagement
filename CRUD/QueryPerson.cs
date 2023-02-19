@@ -65,7 +65,7 @@ namespace ProjectManagement.CRUD
 
             try
             {
-                string commandText = $"SELECT * FROM PERSON WHERE DELETED = CAST(0 as bit);";
+                string commandText = $"SELECT * FROM PERSON;";
                 using NpgsqlCommand cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
