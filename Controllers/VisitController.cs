@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using LiveNiceApp;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Model;
+using ProjectManagement.Model;
 using ProjectManagement.Models;
+using System.Collections;
 using System.Xml.Linq;
 
 namespace ProjectManagement.Controllers
@@ -13,86 +17,80 @@ namespace ProjectManagement.Controllers
         [HttpGet(Name = "GetAllVisitors")]
         public IActionResult GetAllVisits()
         {
-            int numberOfRowsAffected = QueryVisit.GetVisits();
-            string resultString = $"Retrieved {numberOfRowsAffected} visit entries from the VISIT table\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            if (numberOfRowsAffected > 0)
-            {
-                return new ObjectResult(resultString);
-            }
-            resultString = $"Could not get any visits\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            return new ObjectResult(resultString);
+            return new ObjectResult(QueryVisit.GetAll());
         }
 
         [HttpGet("{visit_id}", Name = "GetVisit")]
         public IActionResult GetVisitOfTenant(int visit_id)
         {
-            int numberOfRowsAffected = QueryVisit.GetVisitByID(visit_id);
-            string resultString = $"Retrieved {numberOfRowsAffected} visit entry from the VISIT table\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            if (numberOfRowsAffected > 0)
-            {
-                return new ObjectResult(resultString);
-            }
-            resultString = $"Could not get the visit of the ID {visit_id}\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            return new ObjectResult(resultString);
+            return new ObjectResult(QueryVisit.GetByID(visit_id));
         }
 
         [HttpPost("AddVisit/{tenant_id}", Name = "AddVisit")]
         public IActionResult AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id, DateTime dateOfVisit)
         {
-            int numberOfRowsAffected = QueryVisit.AddVisit(name, surname, identityCode, email, cellphone, tenant_id, dateOfVisit);
-            string resultString = $"Saved visit of person to tenant with ID {tenant_id} into VISIT table\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            if (numberOfRowsAffected > 0)
+            Person person= new Person()
             {
-                return new ObjectResult(resultString);
-            }
-            resultString = $"Could not add visit to the tenant with the following ID: {tenant_id}\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            return new ObjectResult(resultString);
+                personName= name,
+                personSurname= surname,
+                identityCode=identityCode,
+            };
+            Contact contact = new Contact()
+            {
+                email=email,
+                cellphoneNumber=cellphone,
+            };
+            Visit visit = new Visit()
+            {
+                dateOfVisit=dateOfVisit,
+            };
+            ArrayList vistList = new ArrayList
+            {
+                person,
+                contact,
+                visit,
+            };
+            return new ObjectResult($"INSERT RESULT: {QueryVisit.InsertEntry(vistList)}");
         }
 
         [HttpPut("UpdateVisit/{visit_id}", Name = "UpdateVisit")]
-        public IActionResult UpdateVisit(int visit_id, DateTime dateOfVisit, DateTime dateLeftVisit)
+        public IActionResult UpdateVisit(int visit_id, string name, string surname, string identityCode, string email, string cellphone, int tenant_id, DateTime dateOfVisit)
         {
-            int numberOfRowsAffected = QueryVisit.UpdateVisit(visit_id, dateOfVisit, dateLeftVisit);
-            string resultString = $"Updated row with ID {visit_id} IN VISIT TABLE\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            if (numberOfRowsAffected > 0)
+            Person person = new Person()
             {
-                return new ObjectResult(resultString);
-            }
-            resultString = $"Could not update VISIT table on the row with ID {visit_id}\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
+                personName = name,
+                personSurname = surname,
+                identityCode = identityCode,
+            };
+            Contact contact = new Contact()
+            {
+                email = email,
+                cellphoneNumber = cellphone,
+            };
+            Visit visit = new Visit()
+            {
+                dateOfVisit = dateOfVisit,
+            };
+            ArrayList vistList = new ArrayList
+            {
+                person,
+                contact,
+                visit
+            };
 
-            return new ObjectResult(resultString);
+            return new ObjectResult($"UPDATE RESULT: {QueryVisit.UpdateEntryByID(visit_id, vistList)}");
         }
 
         [HttpPut("SoftDeleteVisit/{visit_id}", Name = "SoftDeleteVisit")]
-        public IActionResult SoftDeleteVisit(int visit_id, DateTime date)
+        public IActionResult SoftDeleteVisit(int visit_id)
         {
-            int numberOfRowsAffected = QueryVisit.SoftDeleteVisit(visit_id);
-            string resultString = $"Updated row with ID {visit_id} IN VISIT TABLE\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
+            return new ObjectResult($"DELETE RESULT: {QueryVisit.SoftDeleteEntryByID(visit_id)}");
+        }
 
-            if (numberOfRowsAffected > 0)
-            {
-                return new ObjectResult(resultString);
-            }
-            resultString = $"Could not delete visit with ID {visit_id} from the VISIT table\n";
-            resultString += $"Number of rows affected: {numberOfRowsAffected}";
-
-            return new ObjectResult(resultString);
+        [HttpDelete("DeleteVisit/{visit_id}", Name = "DeleteVisit")]
+        public IActionResult DeleteVisit(int visit_id)
+        {
+            return new ObjectResult($"DELETE RESULT: {QueryVisit.DeleteEntryByID(visit_id)}");
         }
     }
 }

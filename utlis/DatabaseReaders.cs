@@ -86,12 +86,18 @@ namespace ProjectManagement.utlis
 
             DateTime dateOfVisit = (DateTime)reader["date_of_visit"];
 
+            DateTime dateLeftVisit = (DateTime)reader["date_left_visit"];
+
+            bool deleted = (bool)reader["deleted"];
+
             Visit visit = new()
             {
-                visitorID = id,
+                visitID = id,
                 personID = personID,
                 tenantID = tenantID,
                 dateOfVisit = dateOfVisit,
+                dateLeftVisit= dateLeftVisit,
+                deleted= deleted
             };
 
             return visit;

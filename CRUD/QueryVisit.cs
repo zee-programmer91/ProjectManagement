@@ -5,188 +5,144 @@ using ProjectManagement.CRUD;
 using ProjectManagement.utlis;
 using Model;
 using ProjectManagement.Model;
+using static ProjectManagement.Database.DatabaseActions;
 
 namespace ProjectManagement.Models
 {
-    public class QueryVisit
+    public class QueryVisit : DatabaseActionsBridge
     {
-        private static readonly DatabaseConnection databaseConnection = new DatabaseConnection();
-
-        public static int GetVisitByID(int visit_id)
+        public static new Visit GetByID(int ID)
         {
-            int result = -1;
-
             try
             {
-                string commandText = $"SELECT * FROM VISIT WHERE visit_id = @visit_id;";
-                using NpgsqlCommand sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+                string commandText = $"SELECT * FROM VISIT WHERE VISIT_ID = @visitID;";
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
 
-                sqlCommand.Parameters.AddWithValue("visit_id", visit_id);
-                using NpgsqlDataReader reader = sqlCommand.ExecuteReader();
+                cmd.Parameters.AddWithValue("visitID", ID);
 
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     Visit visit = DatabaseReaders.ReadVisit(reader);
-                    Console.WriteLine($"visit: {visit}");
-                    result = 1;
-                    return result;
+                    Console.WriteLine($"Selected visit with visitID {ID} from the VISIT Table");
+
+                    return visit;
                 }
-                Console.WriteLine($"Selected a visit with the ID {visit_id} from the Visit table");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine($"ERROR - Could not get visit with ID {visit_id}");
-                return result;
+                Console.WriteLine($"ERROR - Could not get visit: {e.Message}");
             }
 
-            return result;
+            return new Visit();
         }
 
-        public static int GetVisits()
+        public static new List<Visit> GetAll()
         {
-            List<Visit> visits = new List<Visit>();
-            int result = -1;
+            List<Visit> visits = new();
 
             try
             {
                 string commandText = $"SELECT * FROM VISIT;";
-                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
 
-                using NpgsqlDataReader reader = sqlCommand.ExecuteReader();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     Visit visit = DatabaseReaders.ReadVisit(reader);
                     visits.Add(visit);
                 }
-                result = 1;
-                Console.WriteLine($"Selected a visit with the ID from the Visit table");
+                Console.WriteLine($"Selected all visits from the VIST Table");
+
+                return visits;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine($"ERROR - Could not get all visits");
+            }
+
+            return visits;
+        }
+
+        public static new DatabaseActionsResponses InsertEntry(object newEntry)
+        {
+            int result = 0;
+            Visit newRoom = (Visit)newEntry;
+
+            try
+            {
+                string commandText = $"INSERT INTO VISIT (person_id, date_of_visit, tenant_id) VALUES(@personID, @dateOfVisit, @tenantID);";
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+
+                cmd.Parameters.AddWithValue("personID", newRoom.personID);
+                cmd.Parameters.AddWithValue("dateOfVisit", newRoom.dateOfVisit);
+                cmd.Parameters.AddWithValue("tenantID", newRoom.tenantID);
+
+                result = cmd.ExecuteNonQuery();
+                Console.WriteLine($"Saved visit to tenant with ID {newRoom.tenantID} INTO the VISIT table");
             }
             catch (Exception)
             {
-                Console.WriteLine($"ERROR - Could not get all visits");
+                Console.WriteLine($"ERROR - Could not add visit to the room table for the tenant with the ID {newRoom.tenantID}");
             }
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int AddVisit(string name, string surname, string identityCode, string email, string cellphone, int tenant_id, DateTime dateOfVisit)
+        public static new DatabaseActionsResponses DeleteAll()
+        {
+            return DatabaseActionsResponses.Success;
+        }
+
+        public static new DatabaseActionsResponses SoftDeleteEntryByID(int ID)
         {
             int result = 0;
 
             try
             {
-                Person person = new Person()
-                {
-                    personName = name,
-                    personSurname = surname,
-                    identityCode = identityCode,
-                };
-                QueryPerson.InsertEntry(person);
+                string commandText = $"UPDATE VISIT SET deleted = CAST(1 AS bit) WHERE visit_id = @visitID;";
 
-                int person_id = QueryPerson.GetPersonID(name, surname);
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("visitID", ID);
 
-                Contact contact = new Contact()
-                {
-                    personID = person_id,
-                    cellphoneNumber = cellphone,
-                    email = email,
-                };
-                QueryContact.InsertEntry(contact);
-
-                string commandText = $"INSERT INTO VISIT (person_id, tenant_id, date_of_visit) VALUES(@person_id,@tenant_id, @dateOfVisit);";
-
-                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-                sqlCommand.Parameters.AddWithValue("person_id", person_id);
-                sqlCommand.Parameters.AddWithValue("tenant_id", tenant_id);
-                sqlCommand.Parameters.AddWithValue("dateOfVisit", dateOfVisit);
-
-                result = sqlCommand.ExecuteNonQuery();
-                Console.WriteLine($"Saved contact of person with ID {person_id} INTO VISIT table");
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"Soft Deleted VISIT WITH ID {ID} IN VISIT TABLE");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine($"ERROR - Could not add visit to the tenant with the following ID: {tenant_id}");
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"ERROR - Visit with VisitID {ID} could not be deleted");
             }
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int UpdateVisit(int visit_id, DateTime dateOfVisit, DateTime dateLeftVisit)
-        {
-            int result = 0;
-  
-            try
-            {
-                string commandText = $@"{UpdateCreator.CreateVisitUpdateQuery(dateOfVisit, dateLeftVisit, visit_id)}";
-
-                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-
-                result = sqlCommand.ExecuteNonQuery();
-                Console.WriteLine($"UPDATED VISIT TABLE WHERE ID IS {visit_id}");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine($"ERROR - Could not update VISIT table with ID {visit_id}");
-            }
-            return result;
-        }
-
-        public static int UpdateDateLeftVisit(int visit_id, DateTime date)
+        public static new DatabaseActionsResponses DeleteEntryByID(int ID)
         {
             int result = 0;
 
-            DateTime dateToday = DateTime.Today;
-
-            if (dateToday.Year == date.Year && dateToday.Day < date.Day) // same year, different day
-            {
-                return result;
-            }
-            else if (dateToday.Year < date.Year) // different year
-            {
-                return result;
-            }
-
             try
             {
-                string commandText = $@"UPDATE VISIT SET date_left_visit = @date WHERE visit_id = @visit_id;";
+                string commandText = $"DELETE FROM VISIT WHERE visit_id = @visitID;";
 
-                using (var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection()))
-                {
-                    sqlCommand.Parameters.AddWithValue("date", date.Date);
-                    sqlCommand.Parameters.AddWithValue("visit_id", visit_id);
+                using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("visitID", ID);
 
-                    result = sqlCommand.ExecuteNonQuery();
-                    Console.WriteLine($"UPDATED the date of the visit with the ID of {visit_id} in VISIT table");
-                }
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"Hard Deleted Visit WITH ID {ID} IN VISIT TABLE");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine($"ERROR - Could not update VISIT table with id {visit_id}");
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"ERROR - Visit with visitID {ID} could not be deleted");
             }
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
 
-        public static int SoftDeleteVisit(int visit_id)
+        public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             int result = 0;
-            string commandText = $@"UPDATE VISIT SET deleted = CAST(0 AS BIT) WHERE visit_id = @visit_id;";
 
-            try
-            {
-
-                using var sqlCommand = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
-                sqlCommand.Parameters.AddWithValue("visit_id", visit_id);
-
-                result = sqlCommand.ExecuteNonQuery();
-                Console.WriteLine($"UPDATED VISIT DateFROM WITH ID {visit_id} IN VISIT TABLE");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine($"ERROR - Could not update CONTACT table with id {visit_id}");
-            }
-            return result;
+            return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }
     }
 }

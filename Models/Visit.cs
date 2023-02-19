@@ -4,15 +4,17 @@ namespace LiveNiceApp
 {
     public class Visit
     {
-        public int visitorID = 0;
+        public int visitID = 0;
         public int personID = 0;
         public int tenantID = 0;
         public DateTime dateOfVisit = new();
+        public bool deleted = false;
+        public DateTime dateLeftVisit = new();
 
-        public int VisitorID
+        public int VisitID
         {
-            get { return visitorID; }
-            set { visitorID = value; }
+            get { return visitID; }
+            set { visitID = value; }
         }
         public int PersonID
         {
@@ -28,6 +30,17 @@ namespace LiveNiceApp
         {
             get { return dateOfVisit; }
             set { dateOfVisit = value; }
+        }
+        public DateTime DateLeftVisit
+        {
+            get { return dateLeftVisit; }
+            set { dateLeftVisit = value; }
+        }
+
+        public bool Deleted
+        {
+            get { return deleted; }
+            set { deleted = value; }
         }
 
         public Visit() { }
