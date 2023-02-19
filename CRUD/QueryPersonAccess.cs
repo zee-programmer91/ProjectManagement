@@ -1,6 +1,7 @@
 ﻿using Model;
 using Npgsql;
 using ProjectManagement.Database;
+using ProjectManagement.Model;
 using ProjectManagement.Models;
 using ProjectManagement.utlis;
 using static ProjectManagement.Database.DatabaseActions;
@@ -13,10 +14,10 @@ namespace ProjectManagement.CRUD
         {
             try
             {
-                string commandText = $"SELECT * FROM PERSON_ACCESS WHERE PERSON_ID = @personID;";
+                string commandText = $"SELECT * FROM PERSON_ACCESS WHERE PERSON_ACCESS_ID = @personAcessID;";
                 using var cmd = new NpgsqlCommand(commandText, DatabaseConnection.GetConnection());
 
-                cmd.Parameters.AddWithValue("personID", ID);
+                cmd.Parameters.AddWithValue("personAcessID", ID);
 
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -138,6 +139,61 @@ namespace ProjectManagement.CRUD
         public static new DatabaseActionsResponses UpdateEntryByID(int ID, object updateEntry)
         {
             int result = 0;
+            PersonAccess updatePersonAccess = (PersonAccess)updateEntry;
+
+            Dictionary<string, bool> columnStatus = new Dictionary<string, bool>
+            {
+                { "person_id", false },
+                { "access_id", false },
+            };
+
+            if (updatePersonAccess.personID == 0)
+            {
+                columnStatus["person_id"] = true;
+            }
+
+            if (updatePersonAccess.accessTypeID == 0)
+            {
+                columnStatus["access_id"] = true;
+            }
+
+            Dictionary<string, object> updateColumns = new Dictionary<string, object>
+            {
+                { "person_id", updatePersonAccess.personID },
+                { "access_id", updatePersonAccess.AccessTypeID },
+            };
+
+            string updateStatement = UpdateCreator.CreateUpdateQuery("Person_Access", updateColumns, "person_access_id");
+            if (updateStatement == "")
+            {
+                return DatabaseActionsResponses.FieldEmpty;
+            }
+
+            Console.WriteLine($"updateStatement: {updateStatement}");
+            try
+            {
+                using var cmd = new NpgsqlCommand(updateStatement, DatabaseConnection.GetConnection());
+                cmd.Parameters.AddWithValue("person_access_id", ID);
+
+                foreach (KeyValuePair<string, bool> entry in columnStatus)
+                {
+                    switch (entry.Value)
+                    {
+                        case false:
+                            Console.WriteLine($"{entry.Key} - {updateColumns[entry.Key]}");
+                            cmd.Parameters.AddWithValue($"{entry.Key}", updateColumns[entry.Key]);
+                            break;
+                    }
+                }
+
+                result = (int)cmd.ExecuteNonQuery();
+                Console.WriteLine($"UPDATE TO PERSON_ACCESS_ID {ID} INTO CONTACT TABLE");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine($"ERROR - Could not update contact details of contact ID {ID}");
+            }
 
             return result > 0 ? DatabaseActionsResponses.Success : DatabaseActionsResponses.Failed;
         }

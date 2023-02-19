@@ -33,7 +33,7 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpPut("UpdatePersonAccess/{person_access_id}", Name = "UpdatePersonAccess")]
-        public IActionResult UpdatePersonAccess(int person_access_id, int personID, int accessTypeID)
+        public IActionResult UpdatePersonAccess(int person_access_id, int personID = 0, int accessTypeID = 0)
         {
             PersonAccess personAccess = new PersonAccess()
             {

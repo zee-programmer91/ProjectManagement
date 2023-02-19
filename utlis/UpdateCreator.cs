@@ -7,6 +7,7 @@ namespace ProjectManagement.utlis
     public static class UpdateCreator
     {
         private const string emptyString = "";
+        private const string zeroIndex = "0";
 
         /// <summary>
         /// Creates an SQL update query statement based on the values given
@@ -24,7 +25,7 @@ namespace ProjectManagement.utlis
 
             foreach (var column in columAndValues)
             {
-                switch (column.Value == emptyString)
+                switch (column.Value as string == emptyString || column.Value.ToString() == zeroIndex)
                 {
                     case true:
                         emptyFields++;
