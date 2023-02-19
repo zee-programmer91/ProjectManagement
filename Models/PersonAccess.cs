@@ -2,13 +2,14 @@
 {
     public class PersonAccess
     {
-        public int personAccessType = 0;
+        public int personAccessTypeID = 0;
         public int personID = 0;
         public int accessTypeID = 0;
-        public int PersonAccessType
+        public bool deleted = false;
+        public int PersonAccessTypeID
         {
-            get { return personAccessType; }
-            set { personAccessType = value; }
+            get { return personAccessTypeID; }
+            set { personAccessTypeID = value; }
         }
         public int PersonID
         {
@@ -19,6 +20,12 @@
         {
             get { return accessTypeID; }
             set { accessTypeID = value; }
+        }
+
+        public bool Deleted
+        {
+            get { return deleted; }
+            set { deleted = value; }
         }
     }
 }

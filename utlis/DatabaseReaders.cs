@@ -96,5 +96,27 @@ namespace ProjectManagement.utlis
 
             return visit;
         }
+
+        public static PersonAccess ReadPersonAccess(NpgsqlDataReader reader)
+        {
+
+            int id = (int)reader["person_access_id"];
+
+            int personID = (int)reader["person_id"];
+
+            int accessID = (int)reader["access_id"];
+
+            bool deleted = (bool)reader["deleted"];
+
+            PersonAccess personAccess = new()
+            {
+                personAccessTypeID= id,
+                personID= personID,
+                accessTypeID= accessID,
+                deleted = deleted
+            };
+
+            return personAccess;
+        }
     }
 }
