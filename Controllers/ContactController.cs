@@ -55,9 +55,9 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpPut("SoftDeleteContact/{contact_id}", Name = "SoftDeleteContact")]
-        public IActionResult UpdateContact(int contact_id)
+        public IActionResult SoftDeleteEntryByID(int contact_id)
         {
-            return new ObjectResult(QueryContact.SoftDeleteEntryByID(contact_id));
+            return new ObjectResult($"DELETE RESULT: {QueryContact.SoftDeleteEntryByID(contact_id)}");
         }
 
         [HttpDelete("HardDeleteContact/{contact_id}", Name = "HardDeleteContact")]

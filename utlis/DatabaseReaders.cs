@@ -17,12 +17,15 @@ namespace ProjectManagement.utlis
 
             string cellphoneNumber = reader["cellphone_number"] as string;
 
+            bool deleted = (bool)reader["deleted"];
+
             Contact contact = new()
             {
                 contactID = id,
                 personID = personID,
                 email = email,
                 cellphoneNumber = cellphoneNumber,
+                deleted = deleted
             };
 
             return contact;

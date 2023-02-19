@@ -7,6 +7,7 @@ namespace Model
         public int personID = 0;
         public string email = "";
         public string cellphoneNumber = "";
+        public bool deleted = false;
 
         public int ContactID
         {
@@ -27,6 +28,11 @@ namespace Model
         {
             get { return cellphoneNumber; }
             set { cellphoneNumber = value; }
+        }
+        public bool Deleted
+        {
+            get { return deleted; }
+            set { deleted = value; }
         }
 
         public Contact() { }
